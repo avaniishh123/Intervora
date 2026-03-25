@@ -1,0 +1,194 @@
+.camera-preview-container {
+  position: relative;
+  width: 100%;
+  max-width: 320px;
+  aspect-ratio: 16 / 9;
+  background: #000;
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+}
+
+.camera-preview-video {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transform: scaleX(-1); /* Mirror effect for natural view */
+}
+
+.camera-preview-controls {
+  position: absolute;
+  bottom: 12px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  gap: 12px;
+  z-index: 10;
+}
+
+.control-button {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  border: none;
+  background: rgba(255, 255, 255, 0.9);
+  cursor: pointer;
+  font-size: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+}
+
+.control-button:hover {
+  background: rgba(255, 255, 255, 1);
+  transform: scale(1.1);
+}
+
+.control-button:active {
+  transform: scale(0.95);
+}
+
+.control-button.disabled {
+  background: rgba(244, 67, 54, 0.9);
+}
+
+.control-button.disabled:hover {
+  background: rgba(244, 67, 54, 1);
+}
+
+.camera-disabled-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.8);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-size: 18px;
+  font-weight: 600;
+}
+
+/* Error state */
+.camera-preview-error {
+  width: 100%;
+  max-width: 320px;
+  aspect-ratio: 16 / 9;
+  background: linear-gradient(135deg, #f44336 0%, #e91e63 100%);
+  border-radius: 12px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  text-align: center;
+  color: white;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+}
+
+.error-icon {
+  font-size: 48px;
+  margin-bottom: 12px;
+}
+
+.camera-preview-error h3 {
+  margin: 0 0 8px 0;
+  font-size: 18px;
+}
+
+.camera-preview-error p {
+  margin: 0 0 16px 0;
+  font-size: 14px;
+  opacity: 0.9;
+}
+
+.retry-button {
+  padding: 10px 24px;
+  background: white;
+  color: #f44336;
+  border: none;
+  border-radius: 24px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.retry-button:hover {
+  transform: scale(1.05);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+}
+
+/* Loading state */
+.camera-preview-loading {
+  width: 100%;
+  max-width: 320px;
+  aspect-ratio: 16 / 9;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  border-radius: 12px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  text-align: center;
+  color: white;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+}
+
+.loading-spinner {
+  width: 40px;
+  height: 40px;
+  border: 4px solid rgba(255, 255, 255, 0.3);
+  border-top-color: white;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  margin-bottom: 16px;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.camera-preview-loading p {
+  margin: 0;
+  font-size: 14px;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .camera-preview-container {
+    max-width: 240px;
+  }
+
+  .control-button {
+    width: 36px;
+    height: 36px;
+    font-size: 16px;
+  }
+
+  .camera-preview-error,
+  .camera-preview-loading {
+    max-width: 240px;
+  }
+}
+
+/* Camera stability improvements */
+.camera-preview-video {
+  /* Prevent flickering during re-renders */
+  will-change: auto;
+  transform: scaleX(-1) translateZ(0); /* Mirror + GPU acceleration */
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+}
+
+/* Smooth container transitions */
+.camera-preview-container {
+  /* Prevent layout shifts */
+  contain: layout style paint;
+}

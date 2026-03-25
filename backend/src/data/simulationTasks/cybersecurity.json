@@ -1,0 +1,75 @@
+[
+  {
+    "id": "sec-001",
+    "title": "Security Incident Triage",
+    "difficulty": "hard",
+    "timeLimit": 1200,
+    "description": "Analyze security logs and triage a potential breach incident.",
+    "scenario": "You are a SOC analyst. At 2:47 AM, automated alerts fired for unusual activity. Review the logs below and perform incident triage.",
+    "logs": [
+      "2024-01-15 02:31:14 - AUTH - user: admin@company.com - LOGIN_FAILED - IP: 185.220.101.45 - attempt 1",
+      "2024-01-15 02:31:22 - AUTH - user: admin@company.com - LOGIN_FAILED - IP: 185.220.101.45 - attempt 2",
+      "2024-01-15 02:31:31 - AUTH - user: admin@company.com - LOGIN_FAILED - IP: 185.220.101.45 - attempt 3",
+      "2024-01-15 02:31:45 - AUTH - user: admin@company.com - LOGIN_SUCCESS - IP: 185.220.101.45",
+      "2024-01-15 02:32:01 - API - GET /api/users?limit=10000 - user: admin@company.com - IP: 185.220.101.45 - 200 OK - 2.3MB",
+      "2024-01-15 02:32:15 - API - GET /api/users/export?format=csv - user: admin@company.com - IP: 185.220.101.45 - 200 OK - 8.7MB",
+      "2024-01-15 02:32:44 - API - GET /api/payments/history?all=true - user: admin@company.com - IP: 185.220.101.45 - 200 OK - 4.1MB",
+      "2024-01-15 02:33:12 - API - POST /api/users/bulk-update - user: admin@company.com - IP: 185.220.101.45 - 200 OK",
+      "2024-01-15 02:33:45 - AUTH - user: admin@company.com - LOGOUT - IP: 185.220.101.45",
+      "2024-01-15 02:34:01 - AUTH - user: admin@company.com - LOGIN_SUCCESS - IP: 192.168.1.105 - (normal office IP)"
+    ],
+    "additionalContext": {
+      "ip185Info": "Known Tor exit node, flagged in threat intelligence feeds",
+      "adminNormalHours": "9am-6pm EST, never logged in at 2am before",
+      "dataExported": "~15MB total — full user database + payment history"
+    },
+    "questions": [
+      "What type of attack occurred? Classify the incident severity (P1/P2/P3/P4).",
+      "What is the timeline of the attack? What did the attacker accomplish?",
+      "What immediate containment actions should you take RIGHT NOW?",
+      "What evidence should you preserve and how?",
+      "What notifications are required (legal, regulatory, users)?"
+    ],
+    "evaluationCriteria": [
+      "Correctly identifies credential stuffing + data exfiltration",
+      "Classifies as P1 (critical)",
+      "Immediate actions: disable account, block IP, revoke sessions",
+      "Mentions log preservation and forensic chain of custody",
+      "Identifies GDPR/breach notification requirements"
+    ]
+  },
+  {
+    "id": "sec-002",
+    "title": "Vulnerable Code Review",
+    "difficulty": "medium",
+    "timeLimit": 900,
+    "description": "Review the following code for security vulnerabilities and provide remediation.",
+    "scenario": "You are reviewing a pull request for a Node.js REST API. Identify all security vulnerabilities and explain how to fix them.",
+    "vulnerableCode": "const express = require('express');\nconst mysql = require('mysql');\nconst app = express();\n\nconst db = mysql.createConnection({\n  host: 'localhost',\n  user: 'root',\n  password: 'password123',\n  database: 'users'\n});\n\napp.get('/user', (req, res) => {\n  const userId = req.query.id;\n  const query = `SELECT * FROM users WHERE id = ${userId}`;\n  db.query(query, (err, results) => {\n    res.json(results);\n  });\n});\n\napp.post('/login', (req, res) => {\n  const { username, password } = req.body;\n  const query = `SELECT * FROM users WHERE username='${username}' AND password='${password}'`;\n  db.query(query, (err, results) => {\n    if (results.length > 0) {\n      res.json({ token: 'hardcoded-secret-token', user: results[0] });\n    } else {\n      res.status(401).json({ error: 'Invalid credentials' });\n    }\n  });\n});\n\napp.listen(3000);",
+    "vulnerabilities": [
+      "SQL Injection in /user endpoint (unsanitized query parameter)",
+      "SQL Injection in /login endpoint",
+      "Hardcoded database credentials",
+      "Plaintext password storage/comparison",
+      "Hardcoded JWT secret token",
+      "No input validation",
+      "No error handling (leaks DB errors to client)",
+      "No rate limiting on login endpoint",
+      "SELECT * exposes all user fields including sensitive data"
+    ],
+    "questions": [
+      "List all security vulnerabilities you find, ordered by severity.",
+      "Rewrite the /login endpoint securely.",
+      "What security headers should this API include?",
+      "How would you implement proper authentication for this API?"
+    ],
+    "evaluationCriteria": [
+      "Identifies SQL injection",
+      "Identifies hardcoded credentials",
+      "Identifies plaintext passwords",
+      "Proposes parameterized queries",
+      "Mentions bcrypt for password hashing",
+      "Suggests proper JWT implementation"
+    ]
+  }
+]

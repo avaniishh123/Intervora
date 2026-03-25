@@ -1,0 +1,51 @@
+================================================================================
+                    FIX LOGIN ERROR - DO THIS NOW
+================================================================================
+
+PROBLEM: Backend is running with OLD CORS configuration
+SOLUTION: Restart backend to load NEW CORS configuration
+
+--------------------------------------------------------------------------------
+                              SIMPLE FIX
+--------------------------------------------------------------------------------
+
+1. DOUBLE-CLICK THIS FILE:
+   
+   START_BACKEND_ONLY.bat
+
+2. Wait 5 seconds for backend to start
+
+3. You will see:
+   "Backend starting on port 5000..."
+   "CORS configured for: http://localhost:5173"
+
+4. Try login again - IT WILL WORK!
+
+--------------------------------------------------------------------------------
+                           WHAT THIS DOES
+--------------------------------------------------------------------------------
+
+The batch file will:
+✓ Kill the old backend process (with wrong CORS)
+✓ Start new backend process (with correct CORS)
+✓ Show you it's starting
+
+--------------------------------------------------------------------------------
+                          WHY THIS IS NEEDED
+--------------------------------------------------------------------------------
+
+Node.js reads .env files ONLY at startup.
+We fixed the CORS configuration in .env, but the backend
+is still using the old value from when it first started.
+
+Restarting makes it read the new value.
+
+--------------------------------------------------------------------------------
+                            DO THIS NOW
+--------------------------------------------------------------------------------
+
+>>> DOUBLE-CLICK: START_BACKEND_ONLY.bat <<<
+
+Then try logging in again!
+
+================================================================================

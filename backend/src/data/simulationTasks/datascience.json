@@ -1,0 +1,74 @@
+[
+  {
+    "id": "ds-001",
+    "title": "Customer Churn Dataset Investigation",
+    "difficulty": "medium",
+    "timeLimit": 1200,
+    "description": "Investigate a customer churn dataset and provide actionable business insights.",
+    "scenario": "You are a data scientist at a telecom company. The business team wants to understand why customers are churning. Analyze the provided dataset summary and answer the investigation questions.",
+    "datasetSummary": {
+      "rows": 7043,
+      "columns": 21,
+      "target": "Churn",
+      "churnRate": "26.5%",
+      "sampleStats": {
+        "tenure": { "mean": 32.4, "std": 24.6, "min": 0, "max": 72 },
+        "MonthlyCharges": { "mean": 64.8, "std": 30.1, "min": 18.25, "max": 118.75 },
+        "TotalCharges": { "mean": 2283.3, "std": 2266.8, "min": 0, "max": 8684.8 }
+      },
+      "categoricalStats": {
+        "Contract": { "Month-to-month": "55%", "One year": "21%", "Two year": "24%" },
+        "InternetService": { "Fiber optic": "44%", "DSL": "34%", "No": "22%" },
+        "PaymentMethod": { "Electronic check": "34%", "Mailed check": "23%", "Bank transfer": "22%", "Credit card": "21%" }
+      },
+      "churnByContract": { "Month-to-month": "43%", "One year": "11%", "Two year": "3%" },
+      "churnByTenure": { "0-12 months": "48%", "13-24 months": "28%", "25+ months": "12%" },
+      "missingValues": { "TotalCharges": 11 }
+    },
+    "questions": [
+      "What are the top 3 factors driving customer churn based on this data? Explain your reasoning.",
+      "What business recommendations would you make to reduce churn by 10%?",
+      "How would you handle the missing values in TotalCharges?",
+      "What additional data would you request to improve your analysis?",
+      "If you were to build a churn prediction model, what features would you engineer?"
+    ],
+    "evaluationCriteria": [
+      "Identifies contract type and tenure as key drivers",
+      "Provides actionable business recommendations",
+      "Correctly handles missing data",
+      "Demonstrates statistical reasoning",
+      "Proposes relevant feature engineering"
+    ]
+  },
+  {
+    "id": "ds-002",
+    "title": "A/B Test Results Analysis",
+    "difficulty": "hard",
+    "timeLimit": 900,
+    "description": "Analyze A/B test results and make a data-driven recommendation.",
+    "scenario": "Your team ran an A/B test on a new checkout flow. Analyze the results and provide a recommendation.",
+    "testResults": {
+      "control": { "visitors": 10234, "conversions": 1023, "conversionRate": "10.0%", "avgOrderValue": 85.20 },
+      "treatment": { "visitors": 10189, "conversions": 1120, "conversionRate": "11.0%", "avgOrderValue": 82.10 },
+      "testDuration": "14 days",
+      "pValue": 0.023,
+      "confidenceLevel": "95%",
+      "segmentData": {
+        "mobile": { "control": "8.2%", "treatment": "12.1%" },
+        "desktop": { "control": "12.5%", "treatment": "10.2%" }
+      }
+    },
+    "questions": [
+      "Is the result statistically significant? Should we ship the new checkout flow?",
+      "What does the segment data reveal? How does it change your recommendation?",
+      "What is the practical significance vs statistical significance here?",
+      "What risks do you see in shipping this change?"
+    ],
+    "evaluationCriteria": [
+      "Correctly interprets p-value",
+      "Identifies Simpson's paradox in segment data",
+      "Distinguishes statistical vs practical significance",
+      "Provides nuanced recommendation"
+    ]
+  }
+]

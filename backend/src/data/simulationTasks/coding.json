@@ -1,0 +1,64 @@
+[
+  {
+    "id": "code-001",
+    "title": "Fix the Binary Search Bug",
+    "difficulty": "medium",
+    "timeLimit": 900,
+    "language": "javascript",
+    "description": "The following binary search implementation has a bug that causes it to loop infinitely or return incorrect results. Find and fix the bug.",
+    "problemStatement": "Given a sorted array of integers and a target value, implement binary search to return the index of the target, or -1 if not found. The current implementation is broken — identify and fix the issue.",
+    "starterCode": "function binarySearch(arr, target) {\n  let left = 0;\n  let right = arr.length;\n\n  while (left < right) {\n    const mid = Math.floor((left + right) / 2);\n    if (arr[mid] === target) return mid;\n    if (arr[mid] < target) left = mid;\n    else right = mid;\n  }\n  return -1;\n}\n\nmodule.exports = { binarySearch };",
+    "solutionCode": "function binarySearch(arr, target) {\n  let left = 0;\n  let right = arr.length - 1;\n\n  while (left <= right) {\n    const mid = Math.floor((left + right) / 2);\n    if (arr[mid] === target) return mid;\n    if (arr[mid] < target) left = mid + 1;\n    else right = mid - 1;\n  }\n  return -1;\n}",
+    "visibleTests": [
+      { "input": "([1,3,5,7,9], 5)", "expected": "2", "description": "Find middle element" },
+      { "input": "([1,3,5,7,9], 1)", "expected": "0", "description": "Find first element" },
+      { "input": "([1,3,5,7,9], 10)", "expected": "-1", "description": "Element not found" }
+    ],
+    "hiddenTests": [
+      { "input": "([2], 2)", "expected": "0" },
+      { "input": "([], 5)", "expected": "-1" },
+      { "input": "([1,2,3,4,5,6,7,8,9,10], 7)", "expected": "6" }
+    ],
+    "hints": ["Check the boundary conditions for left and right pointers", "What happens when left equals right?", "The mid pointer update is causing infinite loop"]
+  },
+  {
+    "id": "code-002",
+    "title": "Implement a Rate Limiter",
+    "difficulty": "hard",
+    "timeLimit": 1200,
+    "language": "javascript",
+    "description": "Implement a token bucket rate limiter class that allows a maximum of N requests per time window.",
+    "problemStatement": "Build a RateLimiter class with the following interface:\n- constructor(maxRequests, windowMs): Initialize with max requests and time window in ms\n- isAllowed(userId): Returns true if the request is allowed, false if rate limited\n\nThe limiter should track requests per user independently.",
+    "starterCode": "class RateLimiter {\n  constructor(maxRequests, windowMs) {\n    // TODO: Initialize your data structures\n  }\n\n  isAllowed(userId) {\n    // TODO: Implement rate limiting logic\n    // Return true if allowed, false if rate limited\n  }\n}\n\nmodule.exports = { RateLimiter };",
+    "solutionCode": "class RateLimiter {\n  constructor(maxRequests, windowMs) {\n    this.maxRequests = maxRequests;\n    this.windowMs = windowMs;\n    this.requests = new Map();\n  }\n\n  isAllowed(userId) {\n    const now = Date.now();\n    if (!this.requests.has(userId)) {\n      this.requests.set(userId, []);\n    }\n    const userRequests = this.requests.get(userId).filter(t => now - t < this.windowMs);\n    if (userRequests.length >= this.maxRequests) return false;\n    userRequests.push(now);\n    this.requests.set(userId, userRequests);\n    return true;\n  }\n}",
+    "visibleTests": [
+      { "input": "new RateLimiter(3, 1000); allow 3 requests from user1", "expected": "true,true,true", "description": "Allow up to max requests" },
+      { "input": "new RateLimiter(3, 1000); allow 4 requests from user1", "expected": "true,true,true,false", "description": "Block 4th request" }
+    ],
+    "hiddenTests": [
+      { "input": "Different users should have independent limits", "expected": "true" },
+      { "input": "Requests outside window should not count", "expected": "true" }
+    ],
+    "hints": ["Use a Map to track per-user request timestamps", "Filter out timestamps older than the window", "Sliding window approach works well here"]
+  },
+  {
+    "id": "code-003",
+    "title": "Flatten Nested Object",
+    "difficulty": "easy",
+    "timeLimit": 600,
+    "language": "javascript",
+    "description": "Write a function that flattens a deeply nested object into a single-level object with dot-notation keys.",
+    "problemStatement": "Given a nested object like { a: { b: { c: 1 } }, d: 2 }, return { 'a.b.c': 1, 'd': 2 }. Handle arrays by using index notation like 'arr.0.key'.",
+    "starterCode": "function flattenObject(obj, prefix = '') {\n  // TODO: Implement recursive flattening\n  // Return a flat object with dot-notation keys\n}\n\nmodule.exports = { flattenObject };",
+    "solutionCode": "function flattenObject(obj, prefix = '') {\n  return Object.keys(obj).reduce((acc, key) => {\n    const fullKey = prefix ? `${prefix}.${key}` : key;\n    if (typeof obj[key] === 'object' && obj[key] !== null && !Array.isArray(obj[key])) {\n      Object.assign(acc, flattenObject(obj[key], fullKey));\n    } else {\n      acc[fullKey] = obj[key];\n    }\n    return acc;\n  }, {});\n}",
+    "visibleTests": [
+      { "input": "({ a: { b: 1 }, c: 2 })", "expected": "{ 'a.b': 1, c: 2 }", "description": "Basic nesting" },
+      { "input": "({ x: { y: { z: 42 } } })", "expected": "{ 'x.y.z': 42 }", "description": "Deep nesting" }
+    ],
+    "hiddenTests": [
+      { "input": "({ a: 1 })", "expected": "{ a: 1 }" },
+      { "input": "({  })", "expected": "{}" }
+    ],
+    "hints": ["Use recursion", "Track the current key path as a prefix", "Base case: value is not an object"]
+  }
+]

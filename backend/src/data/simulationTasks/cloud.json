@@ -1,0 +1,89 @@
+[
+  {
+    "id": "cloud-001",
+    "title": "Diagnose Misconfigured Infrastructure",
+    "difficulty": "hard",
+    "timeLimit": 1200,
+    "description": "A production web application is experiencing intermittent 502 errors and high latency. Diagnose and fix the infrastructure issues.",
+    "scenario": "You are a Cloud Engineer on-call. The monitoring dashboard shows 502 errors spiking to 15% and p99 latency at 8 seconds. Review the infrastructure configuration below and identify all issues.",
+    "infrastructure": {
+      "loadBalancer": {
+        "type": "Application Load Balancer",
+        "healthCheck": { "path": "/health", "interval": 300, "threshold": 10, "timeout": 5 },
+        "idleTimeout": 60
+      },
+      "autoScaling": {
+        "minInstances": 1,
+        "maxInstances": 3,
+        "scaleOutCooldown": 600,
+        "scaleInCooldown": 300,
+        "cpuThreshold": 90
+      },
+      "ec2": {
+        "instanceType": "t2.micro",
+        "region": "us-east-1",
+        "multiAZ": false
+      },
+      "rds": {
+        "instanceType": "db.t2.micro",
+        "multiAZ": false,
+        "backupRetention": 0,
+        "maxConnections": 66
+      },
+      "cache": "none"
+    },
+    "issues": [
+      "Health check interval too long (300s) — unhealthy instances serve traffic too long",
+      "Scale-out cooldown too long (600s) — can't respond to traffic spikes fast enough",
+      "CPU threshold too high (90%) — should trigger at 60-70%",
+      "Single AZ deployment — no fault tolerance",
+      "t2.micro too small for production workload",
+      "No caching layer — all requests hit database",
+      "RDS max connections too low (66) — connection pool exhaustion",
+      "No backup retention — data loss risk"
+    ],
+    "questions": [
+      "List all infrastructure issues you can identify and their severity (Critical/High/Medium/Low).",
+      "What is the most likely root cause of the 502 errors right now?",
+      "Write a prioritized remediation plan for the next 24 hours.",
+      "What would the ideal architecture look like for this workload?"
+    ],
+    "evaluationCriteria": [
+      "Identifies health check misconfiguration",
+      "Spots single AZ as availability risk",
+      "Recognizes scaling configuration issues",
+      "Proposes caching strategy",
+      "Prioritizes fixes correctly"
+    ]
+  },
+  {
+    "id": "cloud-002",
+    "title": "Cost Optimization Architecture Review",
+    "difficulty": "medium",
+    "timeLimit": 900,
+    "description": "Review a cloud architecture and identify cost optimization opportunities without sacrificing reliability.",
+    "scenario": "A startup is spending $12,000/month on AWS. Their CTO wants to cut costs by 40% without impacting availability. Review their current setup and propose optimizations.",
+    "currentArchitecture": {
+      "compute": "10x m5.xlarge EC2 On-Demand instances running 24/7",
+      "database": "RDS Multi-AZ db.r5.2xlarge (always on)",
+      "storage": "500GB gp2 EBS volumes per instance",
+      "cdn": "None — all traffic hits origin",
+      "dataTransfer": "5TB/month outbound",
+      "environments": "Production and staging use identical infrastructure"
+    },
+    "trafficPattern": "Business hours only (9am-6pm weekdays), near-zero traffic nights/weekends",
+    "questions": [
+      "What are the top 5 cost optimization opportunities?",
+      "How would you handle the staging environment differently?",
+      "What Reserved Instance or Savings Plan strategy would you recommend?",
+      "How would adding a CDN impact both cost and performance?"
+    ],
+    "evaluationCriteria": [
+      "Identifies Reserved Instances opportunity",
+      "Suggests auto-scaling for traffic patterns",
+      "Recommends CDN for data transfer costs",
+      "Addresses staging environment waste",
+      "Considers gp3 migration from gp2"
+    ]
+  }
+]

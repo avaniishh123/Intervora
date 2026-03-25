@@ -1,0 +1,74 @@
+[
+  {
+    "id": "devops-001",
+    "title": "Debug Failing CI/CD Pipeline",
+    "difficulty": "medium",
+    "timeLimit": 900,
+    "description": "A CI/CD pipeline is failing intermittently. Diagnose the root cause and fix the configuration.",
+    "scenario": "Your team's deployment pipeline has been failing 40% of the time for the past 3 days. Review the pipeline configuration and error logs to identify and fix all issues.",
+    "pipelineConfig": "name: Deploy to Production\non:\n  push:\n    branches: [main]\n\njobs:\n  test:\n    runs-on: ubuntu-latest\n    steps:\n      - uses: actions/checkout@v2\n      - name: Run tests\n        run: npm test\n        \n  build:\n    runs-on: ubuntu-latest\n    steps:\n      - uses: actions/checkout@v2\n      - name: Build Docker image\n        run: docker build -t myapp:latest .\n      - name: Push to registry\n        run: |\n          docker login -u $DOCKER_USER -p $DOCKER_PASS\n          docker push myapp:latest\n          \n  deploy:\n    runs-on: ubuntu-latest\n    steps:\n      - name: Deploy to server\n        run: ssh deploy@prod-server 'docker pull myapp:latest && docker restart myapp'",
+    "errorLogs": [
+      "ERROR: npm test - ECONNRESET - network timeout fetching test dependencies",
+      "ERROR: docker push - unauthorized: authentication required (intermittent)",
+      "ERROR: ssh: connect to host prod-server port 22: Connection timed out",
+      "WARNING: Using deprecated actions/checkout@v2",
+      "ERROR: Build job ran before test job completed successfully"
+    ],
+    "questions": [
+      "List all issues in this pipeline configuration.",
+      "Why is the deploy job sometimes running even when tests fail?",
+      "Rewrite the pipeline with proper job dependencies and fixes.",
+      "What secrets management improvements would you make?",
+      "How would you add rollback capability to this pipeline?"
+    ],
+    "evaluationCriteria": [
+      "Identifies missing job dependencies (needs: [test, build])",
+      "Spots credential exposure risk",
+      "Recommends caching for npm dependencies",
+      "Suggests health check after deployment",
+      "Proposes rollback strategy"
+    ]
+  },
+  {
+    "id": "devops-002",
+    "title": "Production Incident Response",
+    "difficulty": "hard",
+    "timeLimit": 1200,
+    "description": "Respond to a production incident using observability data.",
+    "scenario": "It's 3pm on a Friday. Your e-commerce site is experiencing degraded performance. Orders are failing. You have 15 minutes to diagnose and mitigate. Review the observability data below.",
+    "observabilityData": {
+      "metrics": {
+        "requestRate": "2,400 req/min (normal: 1,800)",
+        "errorRate": "12% (normal: 0.1%)",
+        "p99Latency": "4,200ms (normal: 180ms)",
+        "cpuUsage": "92% across all app servers",
+        "memoryUsage": "78% (normal: 65%)",
+        "dbConnections": "498/500 (at limit)",
+        "cacheHitRate": "12% (normal: 85%)"
+      },
+      "recentChanges": [
+        "10:30am - Deployed new product recommendation feature",
+        "2:45pm - Traffic spike from marketing email campaign"
+      ],
+      "topSlowQueries": [
+        "SELECT * FROM products p JOIN recommendations r ON p.id = r.product_id WHERE r.user_id = ? -- avg 2,100ms",
+        "SELECT COUNT(*) FROM orders WHERE created_at > NOW() - INTERVAL 30 DAY -- avg 890ms (no index)"
+      ],
+      "errorSample": "Error: Connection pool exhausted - all 500 connections in use"
+    },
+    "questions": [
+      "What is the root cause of this incident? Walk through your reasoning.",
+      "What are your immediate mitigation steps (next 15 minutes)?",
+      "What is the permanent fix for each identified issue?",
+      "How would you write the post-mortem for this incident?",
+      "What monitoring/alerting would have caught this earlier?"
+    ],
+    "evaluationCriteria": [
+      "Identifies N+1 query from recommendation feature as root cause",
+      "Suggests immediate: scale up, disable feature flag, increase connection pool",
+      "Proposes query optimization and caching",
+      "Mentions blameless post-mortem",
+      "Suggests proactive load testing before deployments"
+    ]
+  }
+]

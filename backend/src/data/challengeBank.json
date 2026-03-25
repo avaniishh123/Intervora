@@ -1,0 +1,378 @@
+{
+  "challenges": [
+    {
+      "title": "Implement a Binary Search Algorithm",
+      "description": "Write a function that implements binary search on a sorted array. The function should return the index of the target element if found, or -1 if not found.\n\nConstraints:\n- Array is sorted in ascending order\n- Array length: 1 ≤ n ≤ 10^6\n- Time complexity should be O(log n)",
+      "difficulty": "easy",
+      "role": "Software Engineer",
+      "languages": ["python", "javascript", "java", "cpp"],
+      "testCases": [
+        {
+          "input": { "arr": [1, 3, 5, 7, 9, 11], "target": 7 },
+          "expectedOutput": 3,
+          "isHidden": false,
+          "description": "Target exists in middle"
+        },
+        {
+          "input": { "arr": [1, 3, 5, 7, 9, 11], "target": 1 },
+          "expectedOutput": 0,
+          "isHidden": false,
+          "description": "Target at beginning"
+        },
+        {
+          "input": { "arr": [1, 3, 5, 7, 9, 11], "target": 11 },
+          "expectedOutput": 5,
+          "isHidden": false,
+          "description": "Target at end"
+        },
+        {
+          "input": { "arr": [1, 3, 5, 7, 9, 11], "target": 4 },
+          "expectedOutput": -1,
+          "isHidden": true,
+          "description": "Target not found"
+        }
+      ],
+      "starterCode": {
+        "python": "def binary_search(arr, target):\n    # Your code here\n    pass",
+        "javascript": "function binarySearch(arr, target) {\n    // Your code here\n}",
+        "java": "public int binarySearch(int[] arr, int target) {\n    // Your code here\n}",
+        "cpp": "int binarySearch(vector<int>& arr, int target) {\n    // Your code here\n}"
+      },
+      "hints": [
+        "Use two pointers: left and right",
+        "Calculate mid = (left + right) / 2",
+        "Compare arr[mid] with target and adjust pointers"
+      ],
+      "timeLimit": 300
+    },
+    {
+      "title": "Reverse a Linked List",
+      "description": "Given the head of a singly linked list, reverse the list and return the new head.\n\nConstraints:\n- Number of nodes: 0 ≤ n ≤ 5000\n- Node values: -5000 ≤ val ≤ 5000\n- Solve it iteratively or recursively",
+      "difficulty": "medium",
+      "role": "Software Engineer",
+      "languages": ["python", "javascript", "java", "cpp"],
+      "testCases": [
+        {
+          "input": { "head": [1, 2, 3, 4, 5] },
+          "expectedOutput": [5, 4, 3, 2, 1],
+          "isHidden": false,
+          "description": "Normal list"
+        },
+        {
+          "input": { "head": [1, 2] },
+          "expectedOutput": [2, 1],
+          "isHidden": false,
+          "description": "Two nodes"
+        },
+        {
+          "input": { "head": [] },
+          "expectedOutput": [],
+          "isHidden": true,
+          "description": "Empty list"
+        }
+      ],
+      "starterCode": {
+        "python": "class ListNode:\n    def __init__(self, val=0, next=None):\n        self.val = val\n        self.next = next\n\ndef reverse_list(head):\n    # Your code here\n    pass",
+        "javascript": "class ListNode {\n    constructor(val = 0, next = null) {\n        this.val = val;\n        this.next = next;\n    }\n}\n\nfunction reverseList(head) {\n    // Your code here\n}",
+        "java": "class ListNode {\n    int val;\n    ListNode next;\n    ListNode(int val) { this.val = val; }\n}\n\npublic ListNode reverseList(ListNode head) {\n    // Your code here\n}",
+        "cpp": "struct ListNode {\n    int val;\n    ListNode *next;\n    ListNode(int x) : val(x), next(NULL) {}\n};\n\nListNode* reverseList(ListNode* head) {\n    // Your code here\n}"
+      },
+      "hints": [
+        "Use three pointers: prev, current, and next",
+        "Iterate through the list and reverse the links",
+        "Don't forget to handle the edge case of an empty list"
+      ],
+      "timeLimit": 300
+    },
+    {
+      "title": "Find Longest Common Subsequence",
+      "description": "Given two strings text1 and text2, return the length of their longest common subsequence. A subsequence is a sequence that can be derived from another sequence by deleting some or no elements without changing the order of the remaining elements.\n\nConstraints:\n- 1 ≤ text1.length, text2.length ≤ 1000\n- text1 and text2 consist of only lowercase English characters",
+      "difficulty": "hard",
+      "role": "Software Engineer",
+      "languages": ["python", "javascript", "java", "cpp"],
+      "testCases": [
+        {
+          "input": { "text1": "abcde", "text2": "ace" },
+          "expectedOutput": 3,
+          "isHidden": false,
+          "description": "LCS is 'ace'"
+        },
+        {
+          "input": { "text1": "abc", "text2": "abc" },
+          "expectedOutput": 3,
+          "isHidden": false,
+          "description": "Identical strings"
+        },
+        {
+          "input": { "text1": "abc", "text2": "def" },
+          "expectedOutput": 0,
+          "isHidden": true,
+          "description": "No common subsequence"
+        }
+      ],
+      "starterCode": {
+        "python": "def longest_common_subsequence(text1, text2):\n    # Your code here\n    pass",
+        "javascript": "function longestCommonSubsequence(text1, text2) {\n    // Your code here\n}",
+        "java": "public int longestCommonSubsequence(String text1, String text2) {\n    // Your code here\n}",
+        "cpp": "int longestCommonSubsequence(string text1, string text2) {\n    // Your code here\n}"
+      },
+      "hints": [
+        "Use dynamic programming with a 2D table",
+        "dp[i][j] represents LCS length of text1[0..i-1] and text2[0..j-1]",
+        "If characters match: dp[i][j] = dp[i-1][j-1] + 1"
+      ],
+      "timeLimit": 450
+    },
+    {
+      "title": "Implement K-Means Clustering",
+      "description": "Implement the K-Means clustering algorithm from scratch. Given a dataset of points and the number of clusters k, return the cluster assignments for each point.\n\nYour implementation should:\n- Initialize k centroids randomly\n- Assign each point to nearest centroid\n- Update centroids based on assigned points\n- Repeat until convergence or max iterations\n\nConstraints:\n- 2 ≤ k ≤ 10\n- 10 ≤ number of points ≤ 1000\n- Points are in 2D space",
+      "difficulty": "medium",
+      "role": "AI/ML",
+      "languages": ["python"],
+      "testCases": [
+        {
+          "input": { 
+            "points": [[1, 2], [1.5, 1.8], [5, 8], [8, 8], [1, 0.6], [9, 11]], 
+            "k": 2 
+          },
+          "expectedOutput": { "clusters": 2, "converged": true },
+          "isHidden": false,
+          "description": "Two clear clusters"
+        }
+      ],
+      "starterCode": {
+        "python": "import numpy as np\n\ndef kmeans(points, k, max_iterations=100):\n    \"\"\"\n    Implement K-Means clustering\n    \n    Args:\n        points: List of [x, y] coordinates\n        k: Number of clusters\n        max_iterations: Maximum iterations\n    \n    Returns:\n        Dictionary with 'centroids' and 'labels'\n    \"\"\"\n    # Your code here\n    pass"
+      },
+      "hints": [
+        "Use Euclidean distance to find nearest centroid",
+        "Update centroids as mean of assigned points",
+        "Check for convergence when centroids don't change"
+      ],
+      "timeLimit": 600
+    },
+    {
+      "title": "Build a Simple Neural Network",
+      "description": "Implement a simple feedforward neural network with one hidden layer for binary classification. Include forward propagation, loss calculation, and backpropagation.\n\nRequirements:\n- Input layer: variable size\n- Hidden layer: variable size with ReLU activation\n- Output layer: 1 neuron with sigmoid activation\n- Loss function: Binary cross-entropy\n- Implement gradient descent update",
+      "difficulty": "hard",
+      "role": "AI/ML",
+      "languages": ["python"],
+      "testCases": [
+        {
+          "input": { 
+            "X": [[0, 0], [0, 1], [1, 0], [1, 1]], 
+            "y": [0, 1, 1, 0],
+            "hidden_size": 4,
+            "epochs": 1000
+          },
+          "expectedOutput": { "accuracy": ">0.9" },
+          "isHidden": false,
+          "description": "XOR problem"
+        }
+      ],
+      "starterCode": {
+        "python": "import numpy as np\n\nclass NeuralNetwork:\n    def __init__(self, input_size, hidden_size, output_size=1):\n        # Initialize weights and biases\n        pass\n    \n    def forward(self, X):\n        # Forward propagation\n        pass\n    \n    def backward(self, X, y, learning_rate=0.1):\n        # Backpropagation\n        pass\n    \n    def train(self, X, y, epochs=1000):\n        # Training loop\n        pass\n    \n    def predict(self, X):\n        # Make predictions\n        pass"
+      },
+      "hints": [
+        "Initialize weights with small random values",
+        "Use sigmoid(x) = 1 / (1 + exp(-x)) for output",
+        "Use ReLU(x) = max(0, x) for hidden layer"
+      ],
+      "timeLimit": 600
+    },
+    {
+      "title": "Implement Logistic Regression",
+      "description": "Implement logistic regression from scratch for binary classification. Include gradient descent optimization and prediction functionality.\n\nRequirements:\n- Sigmoid activation function\n- Binary cross-entropy loss\n- Gradient descent with learning rate\n- Return trained weights and bias",
+      "difficulty": "easy",
+      "role": "AI/ML",
+      "languages": ["python"],
+      "testCases": [
+        {
+          "input": { 
+            "X": [[1, 2], [2, 3], [3, 4], [4, 5]], 
+            "y": [0, 0, 1, 1],
+            "learning_rate": 0.1,
+            "epochs": 100
+          },
+          "expectedOutput": { "accuracy": ">0.7" },
+          "isHidden": false,
+          "description": "Simple linearly separable data"
+        }
+      ],
+      "starterCode": {
+        "python": "import numpy as np\n\ndef sigmoid(z):\n    # Your code here\n    pass\n\ndef logistic_regression(X, y, learning_rate=0.1, epochs=100):\n    \"\"\"\n    Train logistic regression model\n    \n    Args:\n        X: Feature matrix (n_samples, n_features)\n        y: Labels (n_samples,)\n        learning_rate: Learning rate for gradient descent\n        epochs: Number of training iterations\n    \n    Returns:\n        Dictionary with 'weights' and 'bias'\n    \"\"\"\n    # Your code here\n    pass"
+      },
+      "hints": [
+        "Initialize weights to zeros",
+        "Compute predictions using sigmoid(X @ weights + bias)",
+        "Update weights using gradient: weights -= learning_rate * gradient"
+      ],
+      "timeLimit": 300
+    },
+    {
+      "title": "Design a Secure Authentication System",
+      "description": "Design and implement a secure user authentication system with the following features:\n- Password hashing with salt\n- JWT token generation and validation\n- Rate limiting for login attempts\n- Session management\n\nProvide pseudocode or implementation for the core security functions.",
+      "difficulty": "medium",
+      "role": "Cybersecurity",
+      "languages": ["python", "javascript"],
+      "testCases": [
+        {
+          "input": { "password": "SecurePass123!", "action": "hash" },
+          "expectedOutput": { "hashed": true, "salt_used": true },
+          "isHidden": false,
+          "description": "Password hashing"
+        }
+      ],
+      "starterCode": {
+        "python": "import hashlib\nimport secrets\nimport jwt\nfrom datetime import datetime, timedelta\n\nclass AuthSystem:\n    def __init__(self, secret_key):\n        self.secret_key = secret_key\n        self.login_attempts = {}\n    \n    def hash_password(self, password):\n        # Implement password hashing with salt\n        pass\n    \n    def verify_password(self, password, hashed_password):\n        # Verify password against hash\n        pass\n    \n    def generate_token(self, user_id, expiry_minutes=60):\n        # Generate JWT token\n        pass\n    \n    def validate_token(self, token):\n        # Validate JWT token\n        pass\n    \n    def check_rate_limit(self, user_id, max_attempts=5):\n        # Check if user exceeded login attempts\n        pass",
+        "javascript": "const crypto = require('crypto');\nconst jwt = require('jsonwebtoken');\n\nclass AuthSystem {\n    constructor(secretKey) {\n        this.secretKey = secretKey;\n        this.loginAttempts = new Map();\n    }\n    \n    hashPassword(password) {\n        // Implement password hashing with salt\n    }\n    \n    verifyPassword(password, hashedPassword) {\n        // Verify password against hash\n    }\n    \n    generateToken(userId, expiryMinutes = 60) {\n        // Generate JWT token\n    }\n    \n    validateToken(token) {\n        // Validate JWT token\n    }\n    \n    checkRateLimit(userId, maxAttempts = 5) {\n        // Check if user exceeded login attempts\n    }\n}"
+      },
+      "hints": [
+        "Use bcrypt or PBKDF2 for password hashing",
+        "Store salt with the hashed password",
+        "JWT should include user_id, issued_at, and expiry"
+      ],
+      "timeLimit": 450
+    },
+    {
+      "title": "Implement SQL Injection Prevention",
+      "description": "Given a vulnerable database query function, refactor it to prevent SQL injection attacks. Show both the vulnerable version and the secure version.\n\nRequirements:\n- Identify SQL injection vulnerabilities\n- Implement parameterized queries\n- Add input validation\n- Demonstrate with examples",
+      "difficulty": "easy",
+      "role": "Cybersecurity",
+      "languages": ["python", "javascript"],
+      "testCases": [
+        {
+          "input": { "username": "admin' OR '1'='1", "password": "anything" },
+          "expectedOutput": { "vulnerable": true, "secure_blocks": true },
+          "isHidden": false,
+          "description": "Classic SQL injection attempt"
+        }
+      ],
+      "starterCode": {
+        "python": "import sqlite3\n\n# VULNERABLE VERSION (DO NOT USE)\ndef vulnerable_login(username, password):\n    conn = sqlite3.connect('users.db')\n    cursor = conn.cursor()\n    query = f\"SELECT * FROM users WHERE username='{username}' AND password='{password}'\"\n    cursor.execute(query)\n    return cursor.fetchone()\n\n# SECURE VERSION (IMPLEMENT THIS)\ndef secure_login(username, password):\n    # Your code here\n    pass",
+        "javascript": "const sqlite3 = require('sqlite3');\n\n// VULNERABLE VERSION (DO NOT USE)\nfunction vulnerableLogin(username, password) {\n    const db = new sqlite3.Database('users.db');\n    const query = `SELECT * FROM users WHERE username='${username}' AND password='${password}'`;\n    // This is vulnerable to SQL injection\n}\n\n// SECURE VERSION (IMPLEMENT THIS)\nfunction secureLogin(username, password) {\n    // Your code here\n}"
+      },
+      "hints": [
+        "Use parameterized queries with ? placeholders",
+        "Never concatenate user input into SQL strings",
+        "Validate and sanitize all user inputs"
+      ],
+      "timeLimit": 300
+    },
+    {
+      "title": "Implement Network Packet Analyzer",
+      "description": "Create a basic network packet analyzer that can:\n- Parse packet headers (Ethernet, IP, TCP/UDP)\n- Identify suspicious patterns\n- Detect potential security threats\n- Generate alerts for anomalies\n\nFocus on the analysis logic and threat detection.",
+      "difficulty": "hard",
+      "role": "Cybersecurity",
+      "languages": ["python"],
+      "testCases": [
+        {
+          "input": { 
+            "packets": [
+              {"src": "192.168.1.100", "dst": "10.0.0.1", "port": 22, "flags": "SYN"},
+              {"src": "192.168.1.100", "dst": "10.0.0.1", "port": 23, "flags": "SYN"}
+            ]
+          },
+          "expectedOutput": { "threat_detected": true, "type": "port_scan" },
+          "isHidden": false,
+          "description": "Port scanning detection"
+        }
+      ],
+      "starterCode": {
+        "python": "class PacketAnalyzer:\n    def __init__(self):\n        self.packet_history = []\n        self.alerts = []\n    \n    def parse_packet(self, packet_data):\n        # Parse packet headers\n        pass\n    \n    def detect_port_scan(self, src_ip, time_window=60):\n        # Detect port scanning attempts\n        pass\n    \n    def detect_ddos(self, dst_ip, threshold=100):\n        # Detect DDoS patterns\n        pass\n    \n    def analyze(self, packet):\n        # Main analysis function\n        pass\n    \n    def generate_alert(self, threat_type, details):\n        # Generate security alert\n        pass"
+      },
+      "hints": [
+        "Track connection attempts per source IP",
+        "Multiple connections to different ports = port scan",
+        "High packet rate to single destination = potential DDoS"
+      ],
+      "timeLimit": 600
+    },
+    {
+      "title": "Design a Scalable Microservices Architecture",
+      "description": "Design a microservices architecture for an e-commerce platform with the following services:\n- User Service\n- Product Service\n- Order Service\n- Payment Service\n- Notification Service\n\nProvide:\n- Service boundaries and responsibilities\n- Communication patterns (sync/async)\n- Data storage strategy\n- Scaling considerations",
+      "difficulty": "medium",
+      "role": "Cloud",
+      "languages": ["python", "javascript"],
+      "testCases": [
+        {
+          "input": { "scenario": "place_order" },
+          "expectedOutput": { 
+            "services_involved": ["user", "product", "order", "payment", "notification"],
+            "communication": "event-driven"
+          },
+          "isHidden": false,
+          "description": "Order placement flow"
+        }
+      ],
+      "starterCode": {
+        "python": "# Design the architecture using classes/pseudocode\n\nclass UserService:\n    def __init__(self):\n        # Define service responsibilities\n        pass\n    \n    def authenticate(self, credentials):\n        pass\n    \n    def get_user_profile(self, user_id):\n        pass\n\nclass OrderService:\n    def __init__(self):\n        pass\n    \n    def create_order(self, user_id, items):\n        # Implement order creation logic\n        # Consider: How to communicate with other services?\n        # How to handle failures?\n        pass\n\n# Implement other services and describe communication patterns",
+        "javascript": "// Design the architecture using classes/pseudocode\n\nclass UserService {\n    constructor() {\n        // Define service responsibilities\n    }\n    \n    authenticate(credentials) {\n        // Implementation\n    }\n    \n    getUserProfile(userId) {\n        // Implementation\n    }\n}\n\nclass OrderService {\n    constructor() {\n        // Implementation\n    }\n    \n    createOrder(userId, items) {\n        // Implement order creation logic\n        // Consider: How to communicate with other services?\n        // How to handle failures?\n    }\n}\n\n// Implement other services and describe communication patterns"
+      },
+      "hints": [
+        "Use API Gateway for external requests",
+        "Use message queues (RabbitMQ/Kafka) for async communication",
+        "Each service should have its own database"
+      ],
+      "timeLimit": 600
+    },
+    {
+      "title": "Implement Auto-Scaling Logic",
+      "description": "Implement an auto-scaling algorithm for cloud resources based on metrics like CPU usage, memory, and request rate.\n\nRequirements:\n- Monitor resource metrics\n- Calculate scaling decisions\n- Implement scale-up and scale-down logic\n- Add cooldown periods to prevent thrashing\n- Consider cost optimization",
+      "difficulty": "medium",
+      "role": "Cloud",
+      "languages": ["python", "javascript"],
+      "testCases": [
+        {
+          "input": { 
+            "current_instances": 2,
+            "cpu_usage": 85,
+            "memory_usage": 70,
+            "threshold_high": 80,
+            "threshold_low": 30
+          },
+          "expectedOutput": { "action": "scale_up", "target_instances": 3 },
+          "isHidden": false,
+          "description": "High CPU triggers scale-up"
+        }
+      ],
+      "starterCode": {
+        "python": "from datetime import datetime, timedelta\n\nclass AutoScaler:\n    def __init__(self, min_instances=1, max_instances=10):\n        self.min_instances = min_instances\n        self.max_instances = max_instances\n        self.last_scale_time = None\n        self.cooldown_period = timedelta(minutes=5)\n    \n    def should_scale_up(self, metrics, threshold=80):\n        # Determine if scale-up is needed\n        pass\n    \n    def should_scale_down(self, metrics, threshold=30):\n        # Determine if scale-down is needed\n        pass\n    \n    def calculate_target_instances(self, current_instances, metrics):\n        # Calculate optimal number of instances\n        pass\n    \n    def can_scale(self):\n        # Check if cooldown period has passed\n        pass\n    \n    def scale(self, current_instances, metrics):\n        # Main scaling logic\n        pass",
+        "javascript": "class AutoScaler {\n    constructor(minInstances = 1, maxInstances = 10) {\n        this.minInstances = minInstances;\n        this.maxInstances = maxInstances;\n        this.lastScaleTime = null;\n        this.cooldownPeriod = 5 * 60 * 1000; // 5 minutes in ms\n    }\n    \n    shouldScaleUp(metrics, threshold = 80) {\n        // Determine if scale-up is needed\n    }\n    \n    shouldScaleDown(metrics, threshold = 30) {\n        // Determine if scale-down is needed\n    }\n    \n    calculateTargetInstances(currentInstances, metrics) {\n        // Calculate optimal number of instances\n    }\n    \n    canScale() {\n        // Check if cooldown period has passed\n    }\n    \n    scale(currentInstances, metrics) {\n        // Main scaling logic\n    }\n}"
+      },
+      "hints": [
+        "Use average of multiple metrics for decisions",
+        "Implement exponential scaling for rapid load increases",
+        "Add cooldown to prevent rapid scaling oscillations"
+      ],
+      "timeLimit": 450
+    },
+    {
+      "title": "Design a CI/CD Pipeline",
+      "description": "Design a complete CI/CD pipeline for a web application deployment to cloud infrastructure.\n\nInclude:\n- Source control integration\n- Build and test stages\n- Security scanning\n- Deployment strategies (blue-green, canary)\n- Rollback mechanisms\n- Monitoring and alerts\n\nProvide configuration or pseudocode.",
+      "difficulty": "easy",
+      "role": "Cloud",
+      "languages": ["python", "javascript"],
+      "testCases": [
+        {
+          "input": { "trigger": "git_push", "branch": "main" },
+          "expectedOutput": { 
+            "stages": ["build", "test", "security_scan", "deploy"],
+            "deployment_strategy": "blue-green"
+          },
+          "isHidden": false,
+          "description": "Main branch deployment"
+        }
+      ],
+      "starterCode": {
+        "python": "# Define CI/CD pipeline stages\n\nclass CICDPipeline:\n    def __init__(self, app_name, environment):\n        self.app_name = app_name\n        self.environment = environment\n        self.stages = []\n    \n    def build_stage(self):\n        # Define build process\n        pass\n    \n    def test_stage(self):\n        # Define testing process\n        pass\n    \n    def security_scan_stage(self):\n        # Define security scanning\n        pass\n    \n    def deploy_stage(self, strategy='blue-green'):\n        # Define deployment process\n        pass\n    \n    def rollback(self):\n        # Define rollback mechanism\n        pass\n    \n    def execute(self):\n        # Execute pipeline\n        pass",
+        "javascript": "// Define CI/CD pipeline stages\n\nclass CICDPipeline {\n    constructor(appName, environment) {\n        this.appName = appName;\n        this.environment = environment;\n        this.stages = [];\n    }\n    \n    buildStage() {\n        // Define build process\n    }\n    \n    testStage() {\n        // Define testing process\n    }\n    \n    securityScanStage() {\n        // Define security scanning\n    }\n    \n    deployStage(strategy = 'blue-green') {\n        // Define deployment process\n    }\n    \n    rollback() {\n        // Define rollback mechanism\n    }\n    \n    execute() {\n        // Execute pipeline\n    }\n}"
+      },
+      "hints": [
+        "Use GitHub Actions, GitLab CI, or Jenkins",
+        "Run tests in parallel for faster feedback",
+        "Blue-green deployment maintains two environments"
+      ],
+      "timeLimit": 450
+    }
+  ]
+}

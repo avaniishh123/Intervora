@@ -1,0 +1,199 @@
+.performance-charts-section {
+  margin-bottom: 2rem;
+}
+
+.performance-charts-section h3 {
+  font-size: 1.5rem;
+  color: #333;
+  margin-bottom: 1.5rem;
+}
+
+.charts-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 2rem;
+  margin-bottom: 2rem;
+  width: 100%;
+  overflow: hidden;
+}
+
+.chart-container {
+  background: #f9f9f9;
+  border-radius: 10px;
+  padding: 1.5rem;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  min-width: 0; /* prevent grid blowout */
+  overflow: hidden;
+}
+
+.chart-container canvas {
+  height: 300px !important;
+  max-width: 100% !important;
+  margin-bottom: 1rem;
+}
+
+.chart-summary {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1.5rem;
+  padding-top: 1rem;
+  border-top: 1px solid #e0e0e0;
+}
+
+.summary-item {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.summary-label {
+  font-size: 0.875rem;
+  color: #666;
+  font-weight: 500;
+}
+
+.summary-value {
+  font-size: 1.25rem;
+  color: #333;
+  font-weight: bold;
+}
+
+.sentiment-badge {
+  display: inline-block;
+  padding: 0.25rem 0.75rem;
+  border-radius: 20px;
+  font-size: 0.875rem;
+  font-weight: 600;
+  text-transform: capitalize;
+}
+
+.sentiment-badge {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+}
+
+/* CAR Framework Section */
+.car-framework-section {
+  background: linear-gradient(135deg, #e8f5e9 0%, #c8e6c9 100%);
+  border-radius: 10px;
+  padding: 2rem;
+  margin-top: 2rem;
+}
+
+.car-header {
+  text-align: center;
+  margin-bottom: 1.5rem;
+}
+
+.car-header h4 {
+  font-size: 1.5rem;
+  color: #2e7d32;
+  margin-bottom: 0.5rem;
+}
+
+.car-description {
+  color: #558b2f;
+  font-size: 0.95rem;
+}
+
+.car-score-display {
+  display: flex;
+  align-items: center;
+  gap: 2rem;
+  background: white;
+  border-radius: 10px;
+  padding: 1.5rem;
+}
+
+.car-score-circle {
+  flex-shrink: 0;
+}
+
+.car-gauge {
+  width: 120px;
+  height: 120px;
+}
+
+.car-score-text {
+  font-size: 2rem;
+  font-weight: bold;
+}
+
+.car-explanation {
+  flex: 1;
+}
+
+.car-explanation p {
+  color: #555;
+  line-height: 1.6;
+  margin-bottom: 1rem;
+}
+
+.car-tips {
+  background: #f1f8e9;
+  border-left: 4px solid #4caf50;
+  padding: 1rem;
+  border-radius: 5px;
+}
+
+.car-tips strong {
+  color: #2e7d32;
+  display: block;
+  margin-bottom: 0.5rem;
+}
+
+.car-tips ul {
+  list-style: none;
+  padding-left: 0;
+  margin: 0;
+}
+
+.car-tips li {
+  color: #555;
+  margin-bottom: 0.5rem;
+  padding-left: 1.5rem;
+  position: relative;
+}
+
+.car-tips li::before {
+  content: '✓';
+  position: absolute;
+  left: 0;
+  color: #4caf50;
+  font-weight: bold;
+}
+
+.car-tips strong {
+  color: #2e7d32;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .charts-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .chart-container canvas {
+    height: 250px !important;
+  }
+
+  .chart-summary {
+    flex-direction: column;
+    gap: 1rem;
+  }
+
+  .car-score-display {
+    flex-direction: column;
+    text-align: center;
+  }
+
+  .car-tips {
+    text-align: left;
+  }
+}
+
+@media (min-width: 1024px) {
+  .charts-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}

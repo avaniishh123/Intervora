@@ -1,0 +1,352 @@
+/* PanelReportPage.css */
+.prp-root {
+  min-height: 100vh;
+  background: linear-gradient(135deg, #0a0f1e 0%, #0d1b2a 50%, #0a0f1e 100%);
+  color: #e2e8f0;
+  font-family: 'Inter', system-ui, sans-serif;
+  padding: 0 0 60px;
+}
+
+/* ── Top Nav Bar ── */
+.prp-navbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 18px 40px;
+  background: rgba(15, 23, 42, 0.85);
+  backdrop-filter: blur(12px);
+  border-bottom: 1px solid rgba(255,255,255,0.07);
+  position: sticky;
+  top: 0;
+  z-index: 100;
+}
+.prp-navbar-brand {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 15px;
+  font-weight: 700;
+  color: #94a3b8;
+}
+.prp-navbar-brand span { color: #3b82f6; }
+.prp-navbar-actions { display: flex; gap: 10px; }
+.prp-btn {
+  padding: 9px 20px;
+  border-radius: 8px;
+  border: none;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+.prp-btn-ghost {
+  background: rgba(255,255,255,0.06);
+  color: #94a3b8;
+  border: 1px solid rgba(255,255,255,0.1);
+}
+.prp-btn-ghost:hover { background: rgba(255,255,255,0.12); color: #e2e8f0; }
+.prp-btn-primary {
+  background: linear-gradient(135deg, #3b82f6, #1d4ed8);
+  color: #fff;
+}
+.prp-btn-primary:hover { opacity: 0.9; transform: translateY(-1px); }
+.prp-btn-success {
+  background: linear-gradient(135deg, #10b981, #059669);
+  color: #fff;
+}
+.prp-btn-success:hover { opacity: 0.9; transform: translateY(-1px); }
+
+/* ── Hero Header ── */
+.prp-hero {
+  text-align: center;
+  padding: 48px 24px 32px;
+}
+.prp-hero-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: rgba(59,130,246,0.12);
+  border: 1px solid rgba(59,130,246,0.3);
+  color: #60a5fa;
+  font-size: 12px;
+  font-weight: 600;
+  padding: 5px 14px;
+  border-radius: 20px;
+  margin-bottom: 16px;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+}
+.prp-hero h1 {
+  font-size: clamp(24px, 4vw, 36px);
+  font-weight: 800;
+  color: #f1f5f9;
+  margin: 0 0 8px;
+}
+.prp-hero-sub {
+  color: #64748b;
+  font-size: 14px;
+  margin: 0;
+}
+
+/* ── Score Hero Card ── */
+.prp-score-card {
+  max-width: 900px;
+  margin: 0 auto 32px;
+  padding: 0 24px;
+}
+.prp-score-inner {
+  background: linear-gradient(135deg, rgba(59,130,246,0.08), rgba(139,92,246,0.08));
+  border: 1px solid rgba(59,130,246,0.2);
+  border-radius: 20px;
+  padding: 36px;
+  display: flex;
+  align-items: center;
+  gap: 40px;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+.prp-ring-wrap { position: relative; flex-shrink: 0; }
+.prp-ring-wrap svg { display: block; }
+.prp-ring-inner {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+.prp-ring-num {
+  font-size: 28px;
+  font-weight: 800;
+  color: #f1f5f9;
+  line-height: 1;
+}
+.prp-ring-grade {
+  font-size: 13px;
+  font-weight: 700;
+  color: #94a3b8;
+  margin-top: 2px;
+}
+.prp-score-meta { flex: 1; min-width: 200px; }
+.prp-score-meta h2 {
+  font-size: 22px;
+  font-weight: 700;
+  color: #f1f5f9;
+  margin: 0 0 6px;
+}
+.prp-score-meta p { color: #64748b; font-size: 14px; margin: 0 0 16px; }
+.prp-score-tags { display: flex; gap: 8px; flex-wrap: wrap; }
+.prp-tag {
+  padding: 4px 12px;
+  border-radius: 12px;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.3px;
+}
+.prp-tag-blue  { background: rgba(59,130,246,0.15);  color: #60a5fa;  border: 1px solid rgba(59,130,246,0.3); }
+.prp-tag-purple{ background: rgba(139,92,246,0.15);  color: #a78bfa;  border: 1px solid rgba(139,92,246,0.3); }
+.prp-tag-green { background: rgba(16,185,129,0.15);  color: #34d399;  border: 1px solid rgba(16,185,129,0.3); }
+
+/* ── Main Grid ── */
+.prp-grid {
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 0 24px;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+}
+.prp-grid-full { grid-column: 1 / -1; }
+
+/* ── Cards ── */
+.prp-card {
+  background: rgba(15, 23, 42, 0.7);
+  border: 1px solid rgba(255,255,255,0.07);
+  border-radius: 16px;
+  padding: 24px;
+}
+.prp-card-title {
+  font-size: 13px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.8px;
+  color: #475569;
+  margin: 0 0 18px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.prp-card-title::before {
+  content: '';
+  display: inline-block;
+  width: 3px;
+  height: 14px;
+  border-radius: 2px;
+  background: #3b82f6;
+}
+
+/* ── Section Bars ── */
+.prp-section-bar { margin-bottom: 14px; }
+.prp-section-bar:last-child { margin-bottom: 0; }
+.prp-section-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 6px;
+  font-size: 13px;
+  color: #94a3b8;
+}
+.prp-bar-bg {
+  height: 7px;
+  background: rgba(255,255,255,0.06);
+  border-radius: 4px;
+  overflow: hidden;
+}
+.prp-bar-fill {
+  height: 100%;
+  border-radius: 4px;
+  transition: width 1s ease;
+}
+
+/* ── Strengths / Improvements ── */
+.prp-list { list-style: none; padding: 0; margin: 0; }
+.prp-list li {
+  padding: 8px 0;
+  border-bottom: 1px solid rgba(255,255,255,0.04);
+  font-size: 13px;
+  color: #cbd5e1;
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+}
+.prp-list li:last-child { border-bottom: none; }
+.prp-list li::before {
+  content: '▸';
+  font-size: 10px;
+  margin-top: 2px;
+  flex-shrink: 0;
+}
+.prp-list-green li::before { color: #10b981; }
+.prp-list-amber  li::before { color: #f59e0b; }
+
+/* ── Panel Feedback ── */
+.prp-feedback-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 14px;
+}
+.prp-feedback-card {
+  background: rgba(255,255,255,0.03);
+  border-radius: 12px;
+  padding: 16px;
+  border-left: 3px solid transparent;
+}
+.prp-feedback-who {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 10px;
+}
+.prp-feedback-avatar {
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 11px;
+  font-weight: 800;
+}
+.prp-feedback-name { font-size: 13px; font-weight: 700; }
+.prp-feedback-role { font-size: 11px; color: #64748b; }
+.prp-feedback-text { font-size: 13px; color: #94a3b8; line-height: 1.6; margin: 0; }
+
+/* ── Insights Grid ── */
+.prp-insights-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 12px;
+}
+.prp-insight-card {
+  background: rgba(255,255,255,0.03);
+  border-radius: 12px;
+  padding: 16px;
+  text-align: center;
+}
+.prp-insight-icon {
+  width: 36px;
+  height: 36px;
+  border-radius: 10px;
+  background: rgba(59,130,246,0.15);
+  color: #60a5fa;
+  font-size: 14px;
+  font-weight: 800;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 10px;
+}
+.prp-insight-label { font-size: 11px; color: #475569; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 6px; }
+.prp-insight-val { font-size: 12px; color: #94a3b8; line-height: 1.5; }
+
+/* ── AI Judge ── */
+.prp-judge-text { font-size: 14px; color: #94a3b8; line-height: 1.7; margin: 0; font-style: italic; }
+
+/* ── Q&A Breakdown ── */
+.prp-qa-item {
+  padding: 14px 0;
+  border-bottom: 1px solid rgba(255,255,255,0.05);
+}
+.prp-qa-item:last-child { border-bottom: none; }
+.prp-qa-q { font-size: 13px; font-weight: 600; color: #e2e8f0; margin-bottom: 6px; }
+.prp-qa-a { font-size: 12px; color: #64748b; margin-bottom: 8px; line-height: 1.5; }
+.prp-qa-meta { display: flex; align-items: center; gap: 12px; }
+.prp-qa-score { font-size: 12px; font-weight: 700; }
+.prp-qa-note { font-size: 11px; color: #475569; }
+
+/* ── Bottom Actions ── */
+.prp-actions {
+  max-width: 900px;
+  margin: 28px auto 0;
+  padding: 0 24px;
+  display: flex;
+  gap: 12px;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+.prp-actions .prp-btn { padding: 12px 28px; font-size: 14px; }
+
+/* ── Loading / Error States ── */
+.prp-loading, .prp-error {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 20px;
+  background: #0a0f1e;
+  color: #94a3b8;
+}
+.prp-spinner {
+  width: 48px;
+  height: 48px;
+  border: 4px solid rgba(59,130,246,0.2);
+  border-top-color: #3b82f6;
+  border-radius: 50%;
+  animation: prp-spin 0.9s linear infinite;
+}
+@keyframes prp-spin { to { transform: rotate(360deg); } }
+.prp-loading p { font-size: 15px; color: #64748b; }
+.prp-error-icon { font-size: 48px; }
+.prp-error h2 { font-size: 22px; color: #f1f5f9; margin: 0; }
+.prp-error p { font-size: 14px; color: #64748b; margin: 0; }
+
+/* ── Responsive ── */
+@media (max-width: 640px) {
+  .prp-navbar { padding: 14px 16px; }
+  .prp-grid { grid-template-columns: 1fr; padding: 0 16px; }
+  .prp-score-card { padding: 0 16px; }
+  .prp-score-inner { padding: 24px 20px; gap: 24px; }
+  .prp-actions { padding: 0 16px; }
+  .prp-hero { padding: 32px 16px 24px; }
+}

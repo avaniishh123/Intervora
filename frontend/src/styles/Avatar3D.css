@@ -1,0 +1,107 @@
+.avatar-3d-container {
+  width: 100%;
+  height: 100%;
+  min-height: 400px;
+  position: relative;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+}
+
+.avatar-3d-container canvas {
+  display: block;
+  width: 100% !important;
+  height: 100% !important;
+}
+
+/* State indicator badge */
+.avatar-state-badge {
+  position: absolute;
+  top: 16px;
+  right: 16px;
+  padding: 8px 16px;
+  background: rgba(255, 255, 255, 0.9);
+  border-radius: 20px;
+  font-size: 14px;
+  font-weight: 600;
+  color: #333;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+  z-index: 10;
+  text-transform: capitalize;
+}
+
+.avatar-state-badge.idle {
+  background: rgba(156, 39, 176, 0.9);
+  color: white;
+}
+
+.avatar-state-badge.speaking {
+  background: rgba(76, 175, 80, 0.9);
+  color: white;
+}
+
+.avatar-state-badge.listening {
+  background: rgba(33, 150, 243, 0.9);
+  color: white;
+}
+
+.avatar-state-badge.thinking {
+  background: rgba(255, 152, 0, 0.9);
+  color: white;
+}
+
+.avatar-state-badge.celebrating {
+  background: linear-gradient(90deg, #ff0080, #ff8c00, #40e0d0);
+  color: white;
+  animation: rainbow-pulse 2s infinite;
+}
+
+@keyframes rainbow-pulse {
+  0%, 100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.05);
+  }
+}
+
+/* Loading state */
+.avatar-loading {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  border-radius: 12px;
+}
+
+.avatar-loading-spinner {
+  width: 50px;
+  height: 50px;
+  border: 4px solid rgba(255, 255, 255, 0.3);
+  border-top-color: white;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .avatar-3d-container {
+    min-height: 300px;
+  }
+
+  .avatar-state-badge {
+    top: 12px;
+    right: 12px;
+    padding: 6px 12px;
+    font-size: 12px;
+  }
+}

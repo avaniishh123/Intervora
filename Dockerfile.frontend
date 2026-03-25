@@ -1,0 +1,44 @@
+# Multi-stage build for frontend
+FROM node:18-alpine AS builder
+
+WORKDIR /app
+
+# Copy package files
+COPY frontend/package*.json ./
+
+# Install dependencies
+RUN npm ci
+
+# Copy source code
+COPY frontend/ ./
+
+# Build arguments for environment variables
+ARG VITE_API_URL
+ARG VITE_SOCKET_URL
+ARG VITE_ENV=production
+
+ENV VITE_API_URL=$VITE_API_URL
+ENV VITE_SOCKET_URL=$VITE_SOCKET_URL
+ENV VITE_ENV=$VITE_ENV
+
+# Build application
+RUN npm run build
+
+# Production stage with nginx
+FROM nginx:alpine
+
+# Copy built files
+COPY --from=builder /app/dist /usr/share/nginx/html
+
+# Copy nginx configuration
+COPY frontend/nginx.conf /etc/nginx/conf.d/default.conf
+
+# Expose port
+EXPOSE 80
+
+# Health check
+HEALTHCHECK --interval=30s --timeout=3s --start-period=10s \
+  CMD wget --quiet --tries=1 --spider http://localhost/health || exit 1
+
+# Start nginx
+CMD ["nginx", "-g", "daemon off;"]

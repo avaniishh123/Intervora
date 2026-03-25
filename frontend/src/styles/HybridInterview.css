@@ -1,0 +1,820 @@
+/* ── Page shell ─────────────────────────────────────────────────────────── */
+.hi-page {
+  min-height: 100vh;
+  background: linear-gradient(135deg, #0f0c29 0%, #302b63 50%, #24243e 100%);
+  display: flex;
+  flex-direction: column;
+  color: #fff;
+  font-family: inherit;
+}
+
+/* ── Top bar ────────────────────────────────────────────────────────────── */
+.hi-topbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1rem 2rem;
+  background: rgba(0, 0, 0, 0.3);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  flex-shrink: 0;
+}
+
+.hi-topbar__left,
+.hi-topbar__right {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.hi-topbar__logo {
+  font-size: 1.1rem;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+}
+
+/* Back button in topbar */
+.hi-back-btn {
+  background: rgba(255, 255, 255, 0.07);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: 6px;
+  color: rgba(255, 255, 255, 0.65);
+  font-size: 0.9rem;
+  padding: 0.3rem 0.65rem;
+  cursor: pointer;
+  transition: background 0.2s, color 0.2s;
+  flex-shrink: 0;
+}
+
+.hi-back-btn:hover {
+  background: rgba(255, 255, 255, 0.13);
+  color: #fff;
+}
+
+/* Turn gate badge */
+.hi-gate {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.4rem 1rem;
+  border-radius: 20px;
+  font-size: 0.8rem;
+  font-weight: 600;
+}
+
+.hi-gate--locked {
+  background: rgba(245, 158, 11, 0.15);
+  border: 1px solid rgba(245, 158, 11, 0.35);
+  color: #fbbf24;
+}
+
+.hi-gate--open {
+  background: rgba(16, 185, 129, 0.15);
+  border: 1px solid rgba(16, 185, 129, 0.35);
+  color: #34d399;
+}
+
+.hi-gate--submitted {
+  background: rgba(99, 102, 241, 0.15);
+  border: 1px solid rgba(99, 102, 241, 0.35);
+  color: #a5b4fc;
+}
+
+.hi-gate__dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: currentColor;
+}
+
+.hi-gate--open .hi-gate__dot {
+  animation: hi-pulse 1.2s infinite;
+}
+
+@keyframes hi-pulse {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.4; transform: scale(1.5); }
+}
+
+/* Progress label */
+.hi-progress {
+  font-size: 0.85rem;
+  color: rgba(255, 255, 255, 0.6);
+  font-weight: 500;
+}
+
+/* Timer ring */
+.hi-timer {
+  position: relative;
+  width: 44px;
+  height: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.hi-timer__ring {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  transform: rotate(0deg);
+}
+
+.hi-timer__text {
+  font-size: 0.7rem;
+  font-weight: 700;
+  color: var(--timer-color, #10b981);
+  position: relative;
+  z-index: 1;
+}
+
+/* ── Split body ─────────────────────────────────────────────────────────── */
+.hi-body {
+  flex: 1;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0;
+  overflow: hidden;
+}
+
+/* ── Left panel ─────────────────────────────────────────────────────────── */
+.hi-left {
+  padding: 2rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  border-right: 1px solid rgba(255, 255, 255, 0.07);
+  overflow-y: auto;
+}
+
+/* Error banner */
+.hi-error {
+  background: rgba(239, 68, 68, 0.12);
+  border: 1px solid rgba(239, 68, 68, 0.35);
+  border-radius: 10px;
+  padding: 0.75rem 1rem;
+  color: #fca5a5;
+  font-size: 0.85rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.hi-error button {
+  background: none;
+  border: none;
+  color: #fca5a5;
+  cursor: pointer;
+  font-size: 1rem;
+  padding: 0;
+  line-height: 1;
+}
+
+/* Question box */
+.hi-question {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 16px;
+  padding: 1.5rem;
+  flex-shrink: 0;
+}
+
+.hi-question__label {
+  font-size: 0.7rem;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  color: rgba(255, 255, 255, 0.4);
+  margin-bottom: 0.75rem;
+}
+
+.hi-question__text {
+  font-size: 1.15rem;
+  line-height: 1.7;
+  color: #fff;
+  font-weight: 500;
+}
+
+.hi-question__placeholder {
+  color: rgba(255, 255, 255, 0.35);
+  font-style: italic;
+  font-weight: 400;
+  font-size: 1rem;
+}
+
+/* Answer area */
+.hi-answer {
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 16px;
+  padding: 1.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  flex: 1;
+}
+
+.hi-answer__label {
+  font-size: 0.7rem;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  color: rgba(255, 255, 255, 0.4);
+}
+
+.hi-answer__textarea {
+  flex: 1;
+  min-height: 160px;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 10px;
+  color: #fff;
+  font-size: 0.95rem;
+  padding: 0.85rem 1rem;
+  resize: vertical;
+  outline: none;
+  font-family: inherit;
+  line-height: 1.65;
+  transition: border-color 0.2s;
+}
+
+.hi-answer__textarea:focus {
+  border-color: rgba(124, 58, 237, 0.6);
+}
+
+.hi-answer__textarea:disabled {
+  opacity: 0.35;
+  cursor: not-allowed;
+}
+
+.hi-answer__controls {
+  display: flex;
+  gap: 0.75rem;
+  align-items: center;
+}
+
+/* Voice button */
+.hi-voice-btn {
+  padding: 0.6rem 1.1rem;
+  background: rgba(124, 58, 237, 0.15);
+  border: 1px solid rgba(124, 58, 237, 0.4);
+  border-radius: 8px;
+  color: #c4b5fd;
+  cursor: pointer;
+  font-size: 0.85rem;
+  font-weight: 500;
+  transition: all 0.2s;
+  white-space: nowrap;
+}
+
+.hi-voice-btn:hover:not(:disabled) {
+  background: rgba(124, 58, 237, 0.3);
+}
+
+.hi-voice-btn:disabled {
+  opacity: 0.35;
+  cursor: not-allowed;
+}
+
+.hi-voice-btn--active {
+  background: rgba(16, 185, 129, 0.15);
+  border-color: rgba(16, 185, 129, 0.4);
+  color: #6ee7b7;
+}
+
+/* Submit button */
+.hi-submit-btn {
+  flex: 1;
+  padding: 0.75rem 1rem;
+  background: linear-gradient(135deg, #7c3aed, #4f46e5);
+  border: none;
+  border-radius: 10px;
+  color: #fff;
+  font-size: 0.95rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: opacity 0.2s, transform 0.1s;
+}
+
+.hi-submit-btn:hover:not(:disabled) {
+  opacity: 0.9;
+  transform: translateY(-1px);
+}
+
+.hi-submit-btn:disabled {
+  opacity: 0.35;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.hi-submit-btn__loading {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+}
+
+.hi-spinner {
+  width: 14px;
+  height: 14px;
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  border-top-color: #fff;
+  border-radius: 50%;
+  animation: hi-spin 0.7s linear infinite;
+  display: inline-block;
+}
+
+@keyframes hi-spin {
+  to { transform: rotate(360deg); }
+}
+
+/* ── Right panel ────────────────────────────────────────────────────────── */
+.hi-right {
+  padding: 2rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  overflow-y: auto;
+  background: rgba(0, 0, 0, 0.15);
+}
+
+.hi-eval-header {
+  font-size: 0.7rem;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  color: rgba(255, 255, 255, 0.4);
+}
+
+/* Empty state */
+.hi-eval-empty {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 1rem;
+  padding: 3rem 1rem;
+  text-align: center;
+}
+
+.hi-eval-empty__icon {
+  font-size: 3rem;
+  opacity: 0.4;
+}
+
+.hi-eval-empty__text {
+  color: rgba(255, 255, 255, 0.35);
+  font-size: 0.9rem;
+  line-height: 1.6;
+  max-width: 220px;
+}
+
+/* Loading state */
+.hi-eval-loading {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
+  padding: 3rem 1rem;
+  color: rgba(255, 255, 255, 0.5);
+  font-size: 0.9rem;
+}
+
+.hi-eval-loading__spinner {
+  width: 36px;
+  height: 36px;
+  border: 3px solid rgba(124, 58, 237, 0.2);
+  border-top-color: #7c3aed;
+  border-radius: 50%;
+  animation: hi-spin 0.8s linear infinite;
+}
+
+/* Evaluation result */
+.hi-eval-result {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+
+.hi-eval-composite {
+  text-align: center;
+  padding: 1.5rem;
+  background: rgba(16, 185, 129, 0.08);
+  border: 1px solid rgba(16, 185, 129, 0.2);
+  border-radius: 16px;
+}
+
+.hi-eval-composite__num {
+  font-size: 3rem;
+  font-weight: 800;
+  color: #34d399;
+  line-height: 1;
+}
+
+.hi-eval-composite__denom {
+  font-size: 1.1rem;
+  color: rgba(255, 255, 255, 0.4);
+  margin-left: 0.25rem;
+}
+
+/* Score bars */
+.hi-eval-scores {
+  display: flex;
+  flex-direction: column;
+  gap: 0.85rem;
+}
+
+.hi-eval-score {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+}
+
+.hi-eval-score__top {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.82rem;
+  color: rgba(255, 255, 255, 0.7);
+}
+
+.hi-eval-score__val {
+  font-weight: 700;
+  color: #fff;
+}
+
+.hi-eval-score__bar {
+  height: 6px;
+  background: rgba(255, 255, 255, 0.08);
+  border-radius: 3px;
+  overflow: hidden;
+}
+
+.hi-eval-score__fill {
+  height: 100%;
+  border-radius: 3px;
+  transition: width 0.6s ease;
+}
+
+/* Feedback */
+.hi-eval-feedback {
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 12px;
+  padding: 1rem;
+}
+
+.hi-eval-feedback__label {
+  font-size: 0.7rem;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: rgba(255, 255, 255, 0.35);
+  margin-bottom: 0.5rem;
+}
+
+.hi-eval-feedback__text {
+  font-size: 0.88rem;
+  color: rgba(255, 255, 255, 0.75);
+  line-height: 1.65;
+}
+
+/* Progress dots */
+.hi-progress-dots {
+  display: flex;
+  gap: 0.5rem;
+  justify-content: center;
+  margin-top: auto;
+  padding-top: 1rem;
+}
+
+.hi-progress-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.15);
+  transition: all 0.3s;
+}
+
+.hi-progress-dot--done {
+  background: #10b981;
+}
+
+.hi-progress-dot--current {
+  background: #7c3aed;
+  transform: scale(1.3);
+}
+
+/* ── Result summary page ────────────────────────────────────────────────── */
+.hi-result {
+  min-height: 100vh;
+  background: linear-gradient(135deg, #0f0c29, #302b63, #24243e);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem;
+  color: #fff;
+}
+
+.hi-result__card {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 24px;
+  padding: 2.5rem;
+  max-width: 640px;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1.5rem;
+}
+
+.hi-result__badge {
+  font-size: 3.5rem;
+}
+
+.hi-result__title {
+  font-size: 1.8rem;
+  font-weight: 700;
+  margin: 0;
+}
+
+.hi-result__subtitle {
+  color: rgba(255, 255, 255, 0.5);
+  font-size: 0.9rem;
+  margin: 0;
+  text-align: center;
+}
+
+.hi-result__score-ring {
+  background: rgba(16, 185, 129, 0.1);
+  border: 2px solid rgba(16, 185, 129, 0.3);
+  border-radius: 50%;
+  width: 120px;
+  height: 120px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.2rem;
+}
+
+.hi-result__score-num {
+  font-size: 2.5rem;
+  font-weight: 800;
+  color: #34d399;
+}
+
+.hi-result__score-label {
+  font-size: 0.9rem;
+  color: rgba(255, 255, 255, 0.4);
+  align-self: flex-end;
+  padding-bottom: 0.5rem;
+}
+
+.hi-result__breakdown {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.hi-result__metric {
+  display: grid;
+  grid-template-columns: 90px 1fr 36px;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.hi-result__metric-label {
+  font-size: 0.82rem;
+  color: rgba(255, 255, 255, 0.6);
+}
+
+.hi-result__metric-bar {
+  height: 6px;
+  background: rgba(255, 255, 255, 0.08);
+  border-radius: 3px;
+  overflow: hidden;
+}
+
+.hi-result__metric-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #7c3aed, #10b981);
+  border-radius: 3px;
+  transition: width 0.8s ease;
+}
+
+.hi-result__metric-val {
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: #fff;
+  text-align: right;
+}
+
+.hi-result__history {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  max-height: 280px;
+  overflow-y: auto;
+}
+
+.hi-result__history-title {
+  font-size: 0.7rem;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: rgba(255, 255, 255, 0.35);
+  margin-bottom: 0.25rem;
+}
+
+.hi-result__history-item {
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 10px;
+  padding: 0.85rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+
+.hi-result__history-q {
+  font-size: 0.85rem;
+  color: rgba(255, 255, 255, 0.8);
+  font-weight: 500;
+}
+
+.hi-result__history-a {
+  font-size: 0.8rem;
+  color: rgba(255, 255, 255, 0.45);
+  font-style: italic;
+}
+
+.hi-result__history-score {
+  font-size: 0.78rem;
+  color: #34d399;
+}
+
+.hi-result__btn {
+  padding: 0.85rem 2.5rem;
+  background: linear-gradient(135deg, #7c3aed, #4f46e5);
+  border: none;
+  border-radius: 12px;
+  color: #fff;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: opacity 0.2s, transform 0.1s;
+}
+
+.hi-result__btn:hover {
+  opacity: 0.9;
+  transform: translateY(-1px);
+}
+
+/* ── Responsive ─────────────────────────────────────────────────────────── */
+@media (max-width: 768px) {
+  .hi-body {
+    grid-template-columns: 1fr;
+  }
+
+  .hi-left {
+    border-right: none;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.07);
+  }
+
+  .hi-topbar {
+    padding: 0.75rem 1rem;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+  }
+}
+
+/* ── TTS indicator ──────────────────────────────────────────────────────── */
+.hi-tts-indicator {
+  animation: hi-pulse 1s infinite;
+}
+
+/* ── Voice recording indicator ──────────────────────────────────────────── */
+.hi-answer__voice-indicator {
+  color: #ef4444;
+  font-size: 0.75rem;
+  margin-left: 0.5rem;
+  animation: hi-pulse 1s infinite;
+}
+
+/* ── End session button ─────────────────────────────────────────────────── */
+.hi-end-btn {
+  padding: 0.4rem 0.9rem;
+  background: rgba(239, 68, 68, 0.12);
+  border: 1px solid rgba(239, 68, 68, 0.35);
+  border-radius: 8px;
+  color: #fca5a5;
+  font-size: 0.8rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.hi-end-btn:hover {
+  background: rgba(239, 68, 68, 0.25);
+}
+
+/* ── Next question hint ─────────────────────────────────────────────────── */
+.hi-eval-next-hint {
+  text-align: center;
+  font-size: 0.8rem;
+  color: rgba(255, 255, 255, 0.35);
+  padding: 0.5rem;
+  font-style: italic;
+}
+
+/* ── Session info strip ─────────────────────────────────────────────────── */
+.hi-session-info {
+  margin-top: auto;
+  display: flex;
+  gap: 1.5rem;
+  padding: 0.75rem 1rem;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: 10px;
+}
+
+.hi-session-info__item {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+}
+
+.hi-session-info__label {
+  font-size: 0.65rem;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: rgba(255, 255, 255, 0.3);
+}
+
+.hi-session-info__val {
+  font-size: 0.82rem;
+  color: rgba(255, 255, 255, 0.7);
+  font-weight: 500;
+}
+
+/* ── Result insights ────────────────────────────────────────────────────── */
+.hi-result__insights {
+  width: 100%;
+  background: rgba(124, 58, 237, 0.08);
+  border: 1px solid rgba(124, 58, 237, 0.2);
+  border-radius: 12px;
+  padding: 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.hi-result__insights-title {
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: rgba(255, 255, 255, 0.4);
+  margin-bottom: 0.25rem;
+}
+
+.hi-result__insight-item {
+  font-size: 0.85rem;
+  color: rgba(255, 255, 255, 0.7);
+  line-height: 1.5;
+  padding-left: 0.75rem;
+  border-left: 2px solid rgba(124, 58, 237, 0.5);
+}
+
+/* ── Session elapsed timer (human mode) ─────────────────────────────────── */
+.hi-session-timer {
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: #a5b4fc;
+  background: rgba(99, 102, 241, 0.12);
+  border: 1px solid rgba(99, 102, 241, 0.3);
+  border-radius: 8px;
+  padding: 0.35rem 0.75rem;
+  letter-spacing: 0.04em;
+  font-variant-numeric: tabular-nums;
+}
+
+/* ── Leave session button (candidate) ───────────────────────────────────── */
+.hi-leave-btn {
+  padding: 0.4rem 0.9rem;
+  background: rgba(245, 158, 11, 0.12);
+  border: 1px solid rgba(245, 158, 11, 0.35);
+  border-radius: 8px;
+  color: #fcd34d;
+  font-size: 0.8rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.hi-leave-btn:hover {
+  background: rgba(245, 158, 11, 0.25);
+}
+
+/* ── Host end session button variant ────────────────────────────────────── */
+.hi-end-btn--host {
+  padding: 0.4rem 1rem;
+  font-size: 0.8rem;
+}

@@ -1,0 +1,161 @@
+.answer-input-container {
+  background: transparent;
+  border-radius: 0;
+  padding: 0;
+  box-shadow: none;
+  margin-bottom: 0;
+}
+
+.answer-input-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.answer-label {
+  font-size: 16px;
+  font-weight: 600;
+  color: #1f2937;
+}
+
+.answer-stats {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+}
+
+.stat-item {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.stat-label {
+  color: #6b7280;
+}
+
+.stat-value {
+  font-weight: 600;
+  color: #1f2937;
+}
+
+.stat-value.warning {
+  color: #dc2626;
+}
+
+.stat-divider {
+  color: #d1d5db;
+}
+
+.answer-textarea {
+  width: 100%;
+  min-height: 120px;
+  max-height: 260px;
+  padding: 14px 16px;
+  border: 2px solid #e2e8f0;
+  border-radius: 12px;
+  font-size: 15px;
+  line-height: 1.65;
+  color: #1e293b;
+  resize: vertical;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
+  font-family: inherit;
+  background: #f8fafc;
+  box-sizing: border-box;
+  display: block;
+}
+
+.answer-textarea:focus {
+  outline: none;
+  border-color: #3b82f6;
+  background: white;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+.answer-textarea:disabled {
+  background-color: #f9fafb;
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+.answer-textarea::placeholder {
+  color: #9ca3af;
+}
+
+.answer-input-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 8px;
+  min-height: 24px;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.auto-save-status {
+  font-size: 13px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.saving-indicator {
+  color: #6b7280;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.saved-indicator {
+  color: #10b981;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.spinner {
+  width: 12px;
+  height: 12px;
+  border: 2px solid #e5e7eb;
+  border-top-color: #3b82f6;
+  border-radius: 50%;
+  animation: spin 0.6s linear infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.character-warning {
+  font-size: 12px;
+  color: #dc2626;
+  font-weight: 500;
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+  .answer-input-container {
+    padding: 16px;
+  }
+
+  .answer-input-header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .answer-textarea {
+    font-size: 14px;
+    min-height: 120px;
+  }
+
+  .answer-input-footer {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+}

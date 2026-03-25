@@ -1,0 +1,122 @@
+╔════════════════════════════════════════════════════════════════════════════╗
+║                                                                            ║
+║                    HOW TO LOGIN - SIMPLE INSTRUCTIONS                      ║
+║                                                                            ║
+╚════════════════════════════════════════════════════════════════════════════╝
+
+YOU'RE SEEING "INVALID TOKEN" BECAUSE YOU NEED TO LOGIN FIRST!
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+                        OPTION 1: CREATE NEW ACCOUNT
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+STEP 1: Open your browser and go to:
+        http://localhost:3000/signup
+
+STEP 2: Fill in the signup form:
+        Name:     Your Name
+        Email:    test@example.com
+        Password: Test123!
+        Role:     Candidate
+
+STEP 3: Click "Sign Up" button
+
+STEP 4: You'll be automatically logged in and redirected to Dashboard
+
+STEP 5: Click "Start Interview" and configure your interview
+
+STEP 6: Click "Continue"
+
+        ✅ NO MORE "INVALID TOKEN" ERROR!
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+                        OPTION 2: LOGIN WITH EXISTING ACCOUNT
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+STEP 1: Open your browser and go to:
+        http://localhost:3000/login
+
+STEP 2: Enter your credentials:
+        Email:    Your registered email
+        Password: Your password
+
+STEP 3: Click "Sign In" button
+
+STEP 4: You'll be redirected to Dashboard
+
+STEP 5: Click "Start Interview" and configure your interview
+
+STEP 6: Click "Continue"
+
+        ✅ NO MORE "INVALID TOKEN" ERROR!
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+                        IF YOU'RE STILL SEEING THE ERROR
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+CLEAR YOUR BROWSER STORAGE:
+
+1. Press F12 (Developer Tools)
+2. Go to "Console" tab
+3. Type this command and press Enter:
+   
+   localStorage.clear();
+
+4. Close Developer Tools
+5. Go back to http://localhost:3000/login
+6. Login again
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+                        IMPORTANT: BACKEND MUST BE RUNNING
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+Before logging in, make sure:
+
+1. Backend is running (you should see in terminal):
+   ✅ MongoDB connected successfully
+   🚀 Server running on port 5000
+
+2. If backend is NOT running, run:
+   START_BACKEND_ONLY.bat
+
+3. Wait for "MongoDB connected successfully" message
+
+4. THEN login to the frontend
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+                        MONGODB ISSUE?
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+If backend shows "Failed to connect to MongoDB":
+
+1. Read: DO_THIS_NOW_MONGODB.txt
+2. Whitelist your IP in MongoDB Atlas
+3. Restart backend
+4. Then login
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+                        QUICK SUMMARY
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+The "Invalid Token" error means you're not logged in.
+
+Solution:
+1. Go to http://localhost:3000/signup
+2. Create an account
+3. You'll be logged in automatically
+4. Start your interview
+5. Done!
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━

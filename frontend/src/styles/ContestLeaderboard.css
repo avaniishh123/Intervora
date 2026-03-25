@@ -1,0 +1,102 @@
+.contest-leaderboard {
+  min-height: 100vh;
+  background: linear-gradient(135deg, #0f0c29, #302b63, #24243e);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 2rem;
+  color: #fff;
+}
+
+.contest-leaderboard__card {
+  width: 100%;
+  max-width: 700px;
+  background: rgba(255,255,255,0.05);
+  border: 1px solid rgba(255,255,255,0.1);
+  border-radius: 20px;
+  padding: 2rem;
+  backdrop-filter: blur(12px);
+}
+
+.contest-leaderboard__title {
+  font-size: 1.8rem;
+  font-weight: 700;
+  text-align: center;
+  margin-bottom: 0.5rem;
+}
+
+.contest-leaderboard__subtitle {
+  text-align: center;
+  color: rgba(255,255,255,0.5);
+  font-size: 0.9rem;
+  margin-bottom: 2rem;
+}
+
+.contest-leaderboard__table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.contest-leaderboard__table th {
+  text-align: left;
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: rgba(255,255,255,0.4);
+  padding: 0.5rem 0.75rem;
+  border-bottom: 1px solid rgba(255,255,255,0.08);
+}
+
+.contest-leaderboard__table td {
+  padding: 0.85rem 0.75rem;
+  border-bottom: 1px solid rgba(255,255,255,0.06);
+  font-size: 0.95rem;
+}
+
+.contest-leaderboard__row--me {
+  background: rgba(124, 58, 237, 0.15);
+  border-radius: 8px;
+}
+
+.contest-leaderboard__row--me td:first-child {
+  border-left: 3px solid #7c3aed;
+}
+
+.contest-leaderboard__rank {
+  font-weight: 700;
+  font-size: 1.1rem;
+}
+
+.contest-leaderboard__rank--1 { color: #fbbf24; }
+.contest-leaderboard__rank--2 { color: #9ca3af; }
+.contest-leaderboard__rank--3 { color: #b45309; }
+
+.contest-leaderboard__score {
+  font-weight: 600;
+  color: #10b981;
+}
+
+.contest-leaderboard__time {
+  color: rgba(255,255,255,0.6);
+  font-size: 0.85rem;
+}
+
+.contest-leaderboard__loading {
+  text-align: center;
+  color: rgba(255,255,255,0.5);
+  padding: 3rem;
+}
+
+.contest-leaderboard__back-btn {
+  margin-top: 1.5rem;
+  padding: 0.75rem 2rem;
+  background: rgba(255,255,255,0.08);
+  border: 1px solid rgba(255,255,255,0.15);
+  border-radius: 10px;
+  color: #fff;
+  cursor: pointer;
+  font-size: 0.95rem;
+  transition: background 0.2s;
+}
+
+.contest-leaderboard__back-btn:hover { background: rgba(255,255,255,0.14); }

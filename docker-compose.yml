@@ -1,0 +1,79 @@
+version: '3.8'
+
+services:
+  # MongoDB Database
+  mongodb:
+    image: mongo:7
+    container_name: ai-interview-mongodb
+    restart: unless-stopped
+    ports:
+      - "27017:27017"
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: admin
+      MONGO_INITDB_ROOT_PASSWORD: password
+      MONGO_INITDB_DATABASE: ai-interview-maker
+    volumes:
+      - mongodb_data:/data/db
+    networks:
+      - ai-interview-network
+
+  # Backend Service
+  backend:
+    build:
+      context: .
+      dockerfile: Dockerfile.backend
+    container_name: ai-interview-backend
+    restart: unless-stopped
+    ports:
+      - "3000:3000"
+    environment:
+      NODE_ENV: production
+      PORT: 3000
+      DATABASE_URL: mongodb://admin:password@mongodb:27017/ai-interview-maker?authSource=admin
+      JWT_SECRET: ${JWT_SECRET}
+      GEMINI_API_KEY: ${GEMINI_API_KEY}
+      CORS_ORIGIN: http://localhost:80
+    depends_on:
+      - mongodb
+    volumes:
+      - ./backend/uploads:/app/uploads
+    networks:
+      - ai-interview-network
+    healthcheck:
+      test: ["CMD", "node", "-e", "require('http').get('http://localhost:3000/health', (r) => {process.exit(r.statusCode === 200 ? 0 : 1)})"]
+      interval: 30s
+      timeout: 3s
+      retries: 3
+      start_period: 40s
+
+  # Frontend Service
+  frontend:
+    build:
+      context: .
+      dockerfile: Dockerfile.frontend
+      args:
+        VITE_API_URL: http://localhost:3000
+        VITE_SOCKET_URL: http://localhost:3000
+        VITE_ENV: production
+    container_name: ai-interview-frontend
+    restart: unless-stopped
+    ports:
+      - "80:80"
+    depends_on:
+      - backend
+    networks:
+      - ai-interview-network
+    healthcheck:
+      test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost/health"]
+      interval: 30s
+      timeout: 3s
+      retries: 3
+      start_period: 10s
+
+volumes:
+  mongodb_data:
+    driver: local
+
+networks:
+  ai-interview-network:
+    driver: bridge
