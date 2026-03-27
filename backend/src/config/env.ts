@@ -23,7 +23,7 @@ export const config = {
   geminiApiKey: process.env.GEMINI_API_KEY || '',
   
   // CORS
-  corsOrigin: process.env.CORS_ORIGIN || 'http://localhost:5173',
+  corsOrigin: process.env.CORS_ORIGIN || '',
   
   // File Upload
   maxFileSize: parseInt(process.env.MAX_FILE_SIZE || '5242880', 10), // 5MB default

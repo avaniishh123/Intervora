@@ -378,6 +378,22 @@ Generate exactly {count} questions now.
   }
 }
 
-// Export singleton instance
-export const ragService = new RAGService();
+// Lazy singleton — defers instantiation until first use so dotenv has time to load
+let _ragServiceInstance: RAGService | null = null;
+
+export const ragService = new Proxy({} as RAGService, {
+  get(_target, prop) {
+    if (!_ragServiceInstance) {
+      if (!process.env.GEMINI_API_KEY) {
+        console.error('❌ GEMINI_API_KEY is not set. Please add it to backend/.env');
+        console.error('   Get your key at: https://aistudio.google.com/app/apikey');
+        throw new Error('GEMINI_API_KEY is required. Add it to backend/.env and restart the server.');
+      }
+      _ragServiceInstance = new RAGService();
+    }
+    const value = (_ragServiceInstance as any)[prop];
+    return typeof value === 'function' ? value.bind(_ragServiceInstance) : value;
+  }
+});
+
 export default ragService;

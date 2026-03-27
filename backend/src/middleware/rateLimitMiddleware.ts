@@ -229,6 +229,9 @@ export function signupRateLimitMiddleware(
   }
 }
 
+// Singleton IP rate limiter for general endpoints (100 req/min per IP)
+const generalIpLimiter = new RateLimiter(60000, 100);
+
 /**
  * IP-based rate limiting for unauthenticated endpoints
  * General protection against abuse
@@ -242,10 +245,7 @@ export function ipRateLimitMiddleware(
     const clientIp = getClientIp(req);
     const identifier = `ip:${clientIp}`;
 
-    // Allow 100 requests per minute per IP for general endpoints
-    const ipLimiter = new RateLimiter(60000, 100);
-
-    if (!ipLimiter.isAllowed(identifier)) {
+    if (!generalIpLimiter.isAllowed(identifier)) {
       res.status(429).json({
         status: 'error',
         message: 'Too many requests from this IP. Please try again later.',
