@@ -15,7 +15,7 @@ Your Gemini API question generation system now has:
 
 Check your `backend/.env` file has:
 ```
-GEMINI_API_KEY=AIzaSyD2puP8MRIEB3LtbX7hs7SOXtTJsKh1r9k
+GEMINI_API_KEY=your_gemini_api_key_here
 ```
 
 ✅ **Looks good!** Your API key is already configured.
@@ -31,9 +31,9 @@ npm run dev
 
 **Look for these lines:**
 ```
-✅ GEMINI_API_KEY is configured
-   Key preview: AIzaSyD2pu...
-🤖 Gemini AI: Ready for question generation
+✅ Gemini API initialized successfully
+🤖 Model: models/gemini-flash-latest
+🔑 API Key: configured ✅
 ```
 
 If you see ❌ errors, they'll tell you exactly what's wrong.

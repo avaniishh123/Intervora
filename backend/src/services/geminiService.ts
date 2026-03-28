@@ -123,10 +123,10 @@ export class GeminiService {
       model: 'models/gemini-flash-latest'
     });
 
-    // Log model and API key validation at startup
+    // Log model and API key validation at startup (key presence only — never log key value)
     console.log('✅ Gemini API initialized successfully');
     console.log('🤖 Model: models/gemini-flash-latest');
-    console.log('🔑 API Key: ***' + config.geminiApiKey.slice(-4));
+    console.log('🔑 API Key: configured ✅');
   }
 
   /**
