@@ -1,0 +1,55 @@
+# ── Environment variables (NEVER commit these) ──────────────────────────────
+.env
+.env.local
+.env.production
+.env.development
+.env.staging
+.env.*.local
+backend/.env
+backend/.env.local
+backend/.env.production
+backend/.env.staging
+frontend/.env
+frontend/.env.local
+frontend/.env.production
+frontend/.env.staging
+
+# ── Dependencies ─────────────────────────────────────────────────────────────
+node_modules/
+backend/node_modules/
+frontend/node_modules/
+
+# ── Build output ─────────────────────────────────────────────────────────────
+dist/
+build/
+backend/dist/
+frontend/dist/
+
+# ── Logs ─────────────────────────────────────────────────────────────────────
+logs/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# ── Uploads (user data — never commit) ───────────────────────────────────────
+backend/uploads/
+uploads/
+
+# ── OS / IDE ──────────────────────────────────────────────────────────────────
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# ── Test coverage ─────────────────────────────────────────────────────────────
+coverage/
+.nyc_output/
+
+# ── Temporary ─────────────────────────────────────────────────────────────────
+tmp/
+temp/
+*.bak
