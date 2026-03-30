@@ -24,6 +24,14 @@
     "noImplicitReturns": true,
     "noFallthroughCasesInSwitch": true
   },
-  "include": ["src/**/*"],
-  "exclude": ["node_modules", "dist"]
+  "include": ["src/**/*.ts"],
+  "exclude": [
+  "node_modules",
+  "dist",
+  "src/socket/__tests__",
+  "**/__tests__",
+  "**/*.test.ts",
+  "**/*.spec.ts",
+  "**/test-*.js"
+]
 }
