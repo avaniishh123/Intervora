@@ -153,6 +153,11 @@ class AuthController {
         role: user.role
       });
 
+      // Reset login rate limit counter on successful authentication
+      if (typeof res.locals.resetLoginRateLimit === 'function') {
+        res.locals.resetLoginRateLimit();
+      }
+
       res.status(200).json({
         status: 'success',
         message: 'Login successful',

@@ -56,6 +56,13 @@ class RateLimiter {
   }
 
   /**
+   * Reset the request count for an identifier (e.g. on successful login)
+   */
+  reset(identifier: string): void {
+    this.requests.delete(identifier);
+  }
+
+  /**
    * Clean up old entries
    */
   private cleanup(): void {
@@ -82,9 +89,10 @@ const rateLimiter = new RateLimiter(
 );
 
 // Stricter rate limiter for authentication endpoints
+// 15 attempts per 5 minutes per IP — only failed attempts are counted
 const authRateLimiter = new RateLimiter(
-  15 * 60 * 1000, // 15 minutes
-  5 // 5 attempts
+  5 * 60 * 1000, // 5 minutes
+  15 // 15 attempts
 );
 
 // Rate limiter for signup (per IP)
@@ -155,7 +163,8 @@ export function rateLimitMiddleware(
 
 /**
  * Rate limiting middleware for login endpoint
- * Limits login attempts per IP address to prevent brute force attacks
+ * Limits FAILED login attempts per IP address to prevent brute force attacks.
+ * Successful logins reset the counter so legitimate users are never blocked.
  */
 export function loginRateLimitMiddleware(
   req: Request,
@@ -171,17 +180,22 @@ export function loginRateLimitMiddleware(
       
       res.status(429).json({
         status: 'error',
-        message: 'Too many login attempts. Please try again in 15 minutes.',
-        retryAfter: 900, // 15 minutes in seconds
+        message: 'Too many login attempts. Please try again in 5 minutes.',
+        retryAfter: 300, // 5 minutes in seconds
         remaining
       });
       return;
     }
 
+    // Attach helpers to res.locals so AuthController can call them
+    res.locals.loginRateLimitIdentifier = identifier;
+    res.locals.resetLoginRateLimit = () => authRateLimiter.reset(identifier);
+
     // Add rate limit info to response headers
     const remaining = authRateLimiter.getRemaining(identifier);
-    res.setHeader('X-RateLimit-Limit', '5');
+    res.setHeader('X-RateLimit-Limit', '15');
     res.setHeader('X-RateLimit-Remaining', remaining.toString());
+    res.setHeader('X-RateLimit-Window', '300');
 
     next();
   } catch (error) {
