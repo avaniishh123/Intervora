@@ -308,11 +308,10 @@ const ResultsPage = () => {
         </div>
 
         {/* Session Recording */}
-        {session.recordingUrl && (
+        {session.recordingUrl && sessionId && (
           <SessionRecording
+            sessionId={sessionId}
             recordingUrl={session.recordingUrl}
-            transcriptUrl={session.transcriptUrl}
-            questions={session.questions}
           />
         )}
 

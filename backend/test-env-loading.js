@@ -13,6 +13,6 @@ console.log('API Key first 10 chars:', apiKey ? apiKey.substring(0, 10) : 'undef
 console.log('API Key last 4 chars:', apiKey ? apiKey.slice(-4) : 'undefined');
 
 // Check if it matches the expected new key
-const expectedKey = 'AIzaSyBOxOeVmIZD4_112tfqyREdRUbG2slvxFI';
-console.log('\nExpected key last 4 chars:', expectedKey.slice(-4));
+const expectedKey = process.env.GEMINI_API_KEY || '';
+console.log('\nExpected key last 4 chars:', expectedKey ? expectedKey.slice(-4) : 'NOT SET');
 console.log('Keys match:', apiKey === expectedKey);

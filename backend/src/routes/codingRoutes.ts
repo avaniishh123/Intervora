@@ -17,6 +17,13 @@ router.use(authMiddleware);
 router.get('/roles', codingController.getAvailableRoles.bind(codingController));
 
 /**
+ * @route   GET /api/coding/challenges/id/:challengeId
+ * @desc    Get a specific coding challenge by ID
+ * @access  Private
+ */
+router.get('/challenges/id/:challengeId', codingController.getChallengeById.bind(codingController));
+
+/**
  * @route   GET /api/coding/challenges/:role
  * @desc    Get coding challenges for a specific role
  * @query   difficulty (optional) - Filter by difficulty (easy, medium, hard)
@@ -24,13 +31,6 @@ router.get('/roles', codingController.getAvailableRoles.bind(codingController));
  * @access  Private
  */
 router.get('/challenges/:role', codingController.getChallengesByRole.bind(codingController));
-
-/**
- * @route   GET /api/coding/challenges/id/:challengeId
- * @desc    Get a specific coding challenge by ID
- * @access  Private
- */
-router.get('/challenges/id/:challengeId', codingController.getChallengeById.bind(codingController));
 
 /**
  * @route   GET /api/coding/stats/:role

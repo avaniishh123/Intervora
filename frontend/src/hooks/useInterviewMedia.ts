@@ -54,8 +54,6 @@ export function useInterviewMedia(options: UseInterviewMediaOptions = {}): UseIn
   const {
     startCompositeRecording,
     stopCompositeRecording,
-    cancelCompositeRecording,
-    isCompositeSupported,
   } = useCompositeRecorder();
 
   // Track whether we're using composite mode for this recording session

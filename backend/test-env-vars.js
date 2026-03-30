@@ -15,7 +15,7 @@ console.log('- PORT:', process.env.PORT ? '✅ Present (' + process.env.PORT + '
 
 console.log('\nRaw Values:');
 console.log('- JWT_SECRET length:', process.env.JWT_SECRET ? process.env.JWT_SECRET.length : 'undefined');
-console.log('- JWT_SECRET value:', process.env.JWT_SECRET || 'undefined');
+// NOTE: Never log the actual JWT_SECRET value — removed for security
 
 // Test the config module
 console.log('\n🔍 Testing config module...');

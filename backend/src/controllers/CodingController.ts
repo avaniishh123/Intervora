@@ -169,7 +169,16 @@ export class CodingController {
                 confidence: feedback.geminiAnalysis.codeQuality,
                 clarity: feedback.geminiAnalysis.codeQuality,
                 professionalism: 80,
-                tone: 'technical'
+                tone: 'technical',
+                emotions: {
+                  nervousness: 20,
+                  confidence: feedback.geminiAnalysis.codeQuality,
+                  hesitation: 20,
+                  excitement: 50,
+                  confusion: 20,
+                  stress: 20,
+                  enthusiasm: 60
+                }
               }
             },
             timeSpent: 0, // This should be tracked on the client side

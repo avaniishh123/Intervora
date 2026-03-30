@@ -8,7 +8,11 @@ async function testNewApiKey() {
   console.log('🔍 Testing New API Key Directly...\n');
 
   // Use the new API key directly (not from environment)
-  const newApiKey = 'AIzaSyBOxOeVmIZD4_112tfqyREdRUbG2slvxFI';
+  const newApiKey = process.env.GEMINI_API_KEY || '';
+  if (!newApiKey) {
+    console.error('❌ GEMINI_API_KEY not set in environment. Set it in backend/.env');
+    process.exit(1);
+  }
   
   console.log('🔑 New API Key (masked): ***' + newApiKey.slice(-4));
   console.log('🤖 Model: models/gemini-flash-latest');

@@ -50,6 +50,11 @@ setInterval(() => {
   }
 }, 15 * 60 * 1000);
 
+/** Safely extract a single string from a route param that may be string | string[] */
+function toParamString(param: string | string[]): string {
+  return Array.isArray(param) ? param[0] : param;
+}
+
 class HybridRoomController {
   /**
    * POST /api/hybrid/rooms
@@ -84,7 +89,7 @@ class HybridRoomController {
    * Poll room state — public (no auth needed so participants can check).
    */
   getRoom(req: Request, res: Response): void {
-    const room = rooms.get(req.params.sessionId);
+    const room = rooms.get(toParamString(req.params.sessionId));
     if (!room) {
       res.status(404).json({ status: 'error', message: 'Room not found or expired' });
       return;
@@ -103,7 +108,7 @@ class HybridRoomController {
    * Participant joins by providing their name — public (no auth).
    */
   joinRoom(req: Request, res: Response): void {
-    const room = rooms.get(req.params.sessionId);
+    const room = rooms.get(toParamString(req.params.sessionId));
     if (!room) {
       res.status(404).json({ status: 'error', message: 'Room not found or expired' });
       return;
@@ -141,7 +146,7 @@ class HybridRoomController {
    * Host starts the interview (requires auth, must be host).
    */
   startRoom(req: AuthRequest, res: Response): void {
-    const room = rooms.get(req.params.sessionId);
+    const room = rooms.get(toParamString(req.params.sessionId));
     if (!room) {
       res.status(404).json({ status: 'error', message: 'Room not found' });
       return;
@@ -172,7 +177,7 @@ class HybridRoomController {
    * Public (no auth) — participant only has their participantId.
    */
   leaveRoom(req: Request, res: Response): void {
-    const room = rooms.get(req.params.sessionId);
+    const room = rooms.get(toParamString(req.params.sessionId));
     if (!room) {
       res.status(404).json({ status: 'error', message: 'Room not found' });
       return;
@@ -203,7 +208,7 @@ class HybridRoomController {
    * Host ends the session for all (requires auth, must be host).
    */
   endRoom(req: AuthRequest, res: Response): void {
-    const room = rooms.get(req.params.sessionId);
+    const room = rooms.get(toParamString(req.params.sessionId));
     if (!room) {
       res.status(404).json({ status: 'error', message: 'Room not found' });
       return;
@@ -241,7 +246,7 @@ class HybridRoomController {
    * Log a Q&A event (question asked or answer submitted). Public.
    */
   logEvent(req: Request, res: Response): void {
-    const room = rooms.get(req.params.sessionId);
+    const room = rooms.get(toParamString(req.params.sessionId));
     if (!room) {
       res.status(404).json({ status: 'error', message: 'Room not found' });
       return;
@@ -270,7 +275,7 @@ class HybridRoomController {
    * Returns full event log — host only (requires auth).
    */
   getLog(req: AuthRequest, res: Response): void {
-    const room = rooms.get(req.params.sessionId);
+    const room = rooms.get(toParamString(req.params.sessionId));
     if (!room) {
       res.status(404).json({ status: 'error', message: 'Room not found' });
       return;

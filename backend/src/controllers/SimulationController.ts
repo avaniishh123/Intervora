@@ -342,9 +342,9 @@ export class SimulationController {
         };
 
         const wrappedCode = `(function(module, exports, console, require) { ${code} })(module, exports, console, require);`;
-        const script = new vm.Script(wrappedCode, { timeout: 3000 });
+        const script = new vm.Script(wrappedCode);
         const context = vm.createContext(sandbox);
-        script.runInContext(context);
+        script.runInContext(context, { timeout: 3000 });
 
         // Get the exported function
         const exports = sandbox.module.exports;

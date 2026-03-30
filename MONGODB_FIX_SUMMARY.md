@@ -112,7 +112,7 @@ Edit `backend/.env` and change the MONGODB_URI:
 
 ```env
 # OLD (MongoDB Atlas):
-MONGODB_URI=mongodb+srv://avaniishh_db_user:c8aRwJkdqKk3NLvs@cluster-2.7j9kbge.mongodb.net/ai-interview-maker?retryWrites=true&w=majority
+MONGODB_URI=mongodb+srv://<username>:<password>@cluster-2.7j9kbge.mongodb.net/ai-interview-maker?retryWrites=true&w=majority
 
 # NEW (Local MongoDB):
 MONGODB_URI=mongodb://localhost:27017/ai-interview-maker

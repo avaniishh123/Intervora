@@ -21,59 +21,15 @@ STEP 2: Login to your account
 
 STEP 3: Click "Database Access" (left sidebar, under Security)
 
-STEP 4: Look for user "avaniishh_db_user"
+STEP 4: Find your database user and reset the password if needed.
 
-        IF USER EXISTS:
-        ├─ Click "EDIT" button
-        ├─ Click "Edit Password"
-        ├─ Enter password: Avanish98765
-        └─ Click "Update User"
-
-        IF USER DOES NOT EXIST:
-        ├─ Click "ADD NEW DATABASE USER"
-        ├─ Username: avaniishh_db_user
-        ├─ Password: Avanish98765
-        ├─ Privileges: "Atlas admin"
-        └─ Click "Add User"
-
-STEP 5: Wait for user status to show "Active" (1-2 minutes)
+STEP 5: Update backend/.env with your credentials:
+        MONGODB_URI=mongodb+srv://<your-username>:<your-password>@<your-cluster>.mongodb.net/ai-interview-maker?retryWrites=true&w=majority
 
 STEP 6: Restart backend
         ├─ Stop backend (Ctrl+C)
         ├─ Run: START_BACKEND_ONLY.bat
         └─ Wait for: "✅ MongoDB connected successfully"
-
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-
-                        YOUR CURRENT CREDENTIALS
-
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-
-Username: avaniishh_db_user
-Password: Avanish98765
-Cluster:  cluster-2.7j9kbge.mongodb.net
-Database: ai-interview-maker
-
-These credentials MUST match in MongoDB Atlas!
-
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-
-                        ALTERNATIVE: USE SIMPLE CREDENTIALS
-
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-
-If you want to use simpler credentials:
-
-1. In MongoDB Atlas → Database Access
-2. Create new user:
-   Username: admin
-   Password: admin123
-   Privileges: Atlas admin
-
-3. Update backend/.env:
-   MONGODB_URI=mongodb+srv://admin:admin123@cluster-2.7j9kbge.mongodb.net/ai-interview-maker?retryWrites=true&w=majority
-
-4. Restart backend
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
@@ -89,16 +45,6 @@ After fixing, you should see:
 ✅ MongoDB connected successfully          ← THIS IS THE KEY!
 📊 Database: ai-interview-maker
 🚀 Server running on port 5000
-
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-
-                        NEED MORE HELP?
-
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-
-Read: FIX_MONGODB_AUTH_ERROR.md
-
-This has detailed instructions with screenshots and troubleshooting.
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 

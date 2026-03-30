@@ -42,9 +42,10 @@ export function securityHeadersMiddleware(
   }
 
   // Permissions Policy (formerly Feature Policy)
+  // camera=(self) and microphone=(self) are required for interview recording and voice features
   res.setHeader(
     'Permissions-Policy',
-    'camera=(), microphone=(), geolocation=(), payment=()'
+    'camera=(self), microphone=(self), geolocation=(), payment=()'
   );
 
   next();

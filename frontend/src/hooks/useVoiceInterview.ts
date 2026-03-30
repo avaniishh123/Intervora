@@ -38,7 +38,8 @@ export const useVoiceInterview = (config: VoiceInterviewConfig = {}) => {
     error: null
   });
 
-  const recognitionRef = useRef<SpeechRecognition | null>(null);
+  const recognitionRef = useRef<InstanceType<typeof SpeechRecognition> | null>(null);
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const synthesisRef = useRef<SpeechSynthesis | null>(null);
   const streamRef = useRef<MediaStream | null>(null);
 
@@ -91,8 +92,9 @@ export const useVoiceInterview = (config: VoiceInterviewConfig = {}) => {
       return null;
     }
 
-    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-    const recognition = new SpeechRecognition();
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const SpeechRecognitionAPI = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
+    const recognition = new SpeechRecognitionAPI() as InstanceType<typeof SpeechRecognition>;
 
     recognition.continuous = true;
     recognition.interimResults = true;
@@ -103,7 +105,7 @@ export const useVoiceInterview = (config: VoiceInterviewConfig = {}) => {
       setState(prev => ({ ...prev, isListening: true, error: null }));
     };
 
-    recognition.onresult = (event) => {
+    recognition.onresult = (event: SpeechRecognitionEvent) => {
       let finalTranscript = '';
       let interimTranscript = '';
 
@@ -128,7 +130,7 @@ export const useVoiceInterview = (config: VoiceInterviewConfig = {}) => {
       }
     };
 
-    recognition.onerror = (event) => {
+    recognition.onerror = (event: SpeechRecognitionErrorEvent) => {
       console.error('❌ Speech recognition error:', event.error);
       setState(prev => ({
         ...prev,

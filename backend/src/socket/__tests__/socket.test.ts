@@ -248,7 +248,9 @@ describe('Socket.io Communication Tests', () => {
         sentiment: {
           overall: 'positive',
           confidence: 0.8,
-          clarity: 0.9
+          clarity: 0.9,
+          professionalism: 0.85,
+          tone: 'confident'
         }
       };
 

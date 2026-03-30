@@ -32,7 +32,6 @@ export default function InterviewPage() {
     streamError,
     isRecording,
     recordingDuration,
-    startRecording,
     startCompositeWithStream,
     stopRecording,
     avatarState,
@@ -50,7 +49,7 @@ export default function InterviewPage() {
   const [sessionStarted, setSessionStarted] = useState(false);
   const [isConnected, setIsConnected] = useState(false);
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const [totalQuestionsForSession] = useState(0); // kept for legacy compat
+  const [_totalQuestionsForSession] = useState(0); // kept for legacy compat
 
   // Duration-based timer state (NEW)
   const [sessionDurationSeconds, setSessionDurationSeconds] = useState(15 * 60); // default 15 min
@@ -80,7 +79,7 @@ export default function InterviewPage() {
 
   // Voice input state — tracks whether candidate mic is open
   // (mirrors voiceMode.isListening, kept for legacy notification calls)
-  const [isListeningToVoice, setIsListeningToVoice] = useState(false);
+  const [_isListeningToVoice, setIsListeningToVoice] = useState(false);
 
   // Stable ref so the voice mode silence callback always calls the latest submit
   const handleSubmitAnswerRef = useRef<() => void>(() => {});

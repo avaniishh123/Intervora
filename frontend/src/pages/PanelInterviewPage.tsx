@@ -123,7 +123,7 @@ export default function PanelInterviewPage() {
   const [messages,       setMessages]       = useState<Message[]>([]);
   const [answer,         setAnswer]         = useState('');
   const [activeSpeaker,  setActiveSpeaker]  = useState<string | null>(null);
-  const [questionIdx,    setQuestionIdx]    = useState<Record<string, number>>({ tech: 0, hiring: 0, hr: 0 });
+  const [_questionIdx,   setQuestionIdx]    = useState<Record<string, number>>({ tech: 0, hiring: 0, hr: 0 });
   const [currentPanel,   setCurrentPanel]   = useState(0);
   const [isThinking,     setIsThinking]     = useState(false);
   const [sessionEnded,   setSessionEnded]   = useState(false);

@@ -736,9 +736,11 @@ export class SessionController {
       }
       // ── Path B: base64 JSON fallback ──
       else if (req.body?.recordingData) {
-        const { recordingData, fileExtension = 'webm' } = req.body;
+        const recordingData: string = req.body.recordingData;
+        const fileExtension = Array.isArray(req.body.fileExtension) ? req.body.fileExtension[0] : (req.body.fileExtension ?? 'webm');
+        const sessionIdStr = Array.isArray(id) ? id[0] : id;
         console.log(`📹 Recording base64 received, extension: ${fileExtension}`);
-        recordingUrl = await recordingService.saveRecordingFromBase64(recordingData, fileExtension, id);
+        recordingUrl = await recordingService.saveRecordingFromBase64(recordingData, fileExtension, sessionIdStr);
         console.log(`✅ Recording saved via base64: ${recordingUrl}`);
       } else {
         res.status(400).json({ status: 'error', message: 'No recording data provided. Send multipart/form-data with field "recording".' });
@@ -809,10 +811,11 @@ export class SessionController {
 
       // Save transcript (can be string or structured array)
       let transcriptUrl: string;
+      const sessionIdParam = Array.isArray(id) ? id[0] : id;
       if (typeof transcriptData === 'string') {
-        transcriptUrl = await recordingService.saveTranscript(transcriptData, id);
+        transcriptUrl = await recordingService.saveTranscript(transcriptData, sessionIdParam);
       } else if (Array.isArray(transcriptData)) {
-        transcriptUrl = await recordingService.saveStructuredTranscript(transcriptData, id);
+        transcriptUrl = await recordingService.saveStructuredTranscript(transcriptData, sessionIdParam);
       } else {
         res.status(400).json({
           status: 'error',

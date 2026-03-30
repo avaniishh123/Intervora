@@ -419,7 +419,7 @@ const ResumeUploaderEnhanced = () => {
                 Back
               </button>
               <button
-                onClick={handleUpload}
+                onClick={() => handleUpload(false)}
                 className="upload-button"
                 disabled={!file || isUploading}
               >

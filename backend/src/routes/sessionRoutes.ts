@@ -32,18 +32,18 @@ router.post('/:id/submit-answer', (req, res, next) => sessionController.submitAn
 router.post('/:id/complete', (req, res, next) => sessionController.completeSession(req, res, next));
 
 /**
- * @route   GET /api/sessions/:id
- * @desc    Get a specific session by ID
- * @access  Private (session owner or admin)
- */
-router.get('/:id', (req, res, next) => sessionController.getSession(req, res, next));
-
-/**
  * @route   GET /api/sessions/user/:userId
  * @desc    Get all sessions for a user
  * @access  Private (user or admin)
  */
 router.get('/user/:userId', (req, res, next) => sessionController.getUserSessions(req, res, next));
+
+/**
+ * @route   GET /api/sessions/:id
+ * @desc    Get a specific session by ID
+ * @access  Private (session owner or admin)
+ */
+router.get('/:id', (req, res, next) => sessionController.getSession(req, res, next));
 
 /**
  * @route   DELETE /api/sessions/:id/recording

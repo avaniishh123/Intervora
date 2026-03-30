@@ -5,8 +5,12 @@
 const { GoogleGenerativeAI } = require('@google/generative-ai');
 
 async function testNewKey() {
-  // Use the new key directly
-  const newApiKey = 'AIzaSyBxLNivdnguGd7oO72ZOCXpA48_-UHqyN8';
+  // Use the key from environment
+  const newApiKey = process.env.GEMINI_API_KEY || '';
+  if (!newApiKey) {
+    console.error('❌ GEMINI_API_KEY not set in environment. Set it in backend/.env');
+    process.exit(1);
+  }
   
   console.log('🔍 Testing New API Key Directly');
   console.log('===============================');

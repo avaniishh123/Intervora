@@ -1,6 +1,7 @@
 {
   "version": 2,
   "name": "ai-interview-maker-backend",
+  "buildCommand": "npm run build",
   "builds": [
     {
       "src": "dist/server.js",

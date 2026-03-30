@@ -125,7 +125,7 @@ export class LeaderboardController {
    */
   async getUserPublicProfile(req: Request, res: Response, next: NextFunction): Promise<void> {
     try {
-      const { userId } = req.params;
+      const userId = Array.isArray(req.params.userId) ? req.params.userId[0] : req.params.userId;
 
       const profile = await leaderboardService.getUserPublicProfile(userId);
 

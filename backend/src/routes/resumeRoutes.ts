@@ -1,4 +1,4 @@
-import { Router, Request, Response } from 'express';
+import { Router, Request, Response, NextFunction } from 'express';
 import { resumeController } from '../controllers/ResumeController';
 import { authMiddleware } from '../middleware/authMiddleware';
 import { upload, handleUploadError } from '../middleware/uploadMiddleware';
@@ -19,7 +19,7 @@ router.post(
   '/upload',
   authMiddleware,
   upload.single('resume'),
-  handleUploadError,
+  (err: any, req: Request, res: Response, next: NextFunction) => handleUploadError(err, req, res, next),
   (req: Request, res: Response) => resumeController.uploadResume(req, res)
 );
 
