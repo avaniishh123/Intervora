@@ -53,7 +53,7 @@ const LoginPage = () => {
       // Check if it's a network error
       if (error.code === 'ERR_NETWORK' || error.message === 'Network Error') {
         setErrorMessage(
-          'Cannot connect to server. Please ensure the backend is running on http://localhost:5000'
+          'Cannot connect to server. Please check your internet connection or try again later.'
         );
       } else if (error.response) {
         // Server responded with error

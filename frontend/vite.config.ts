@@ -1,9 +1,14 @@
-import { defineConfig } from 'vite'
+import { defineConfig, loadEnv } from 'vite'
 import react from '@vitejs/plugin-react'
 import path from 'path'
 
 // https://vitejs.dev/config/
-export default defineConfig({
+export default defineConfig(({ mode }) => {
+  // Load .env so VITE_API_URL is available inside the config itself
+  const env = loadEnv(mode, process.cwd(), '')
+  const backendTarget = env.VITE_API_URL || 'http://localhost:5000'
+
+  return {
   plugins: [react()],
   resolve: {
     alias: {
@@ -14,7 +19,11 @@ export default defineConfig({
     port: 3000,
     proxy: {
       '/api': {
-        target: process.env.VITE_API_URL || 'http://localhost:5000',
+        target: backendTarget,
+        changeOrigin: true,
+      },
+      '/auth': {
+        target: backendTarget,
         changeOrigin: true,
       },
     },
@@ -58,4 +67,5 @@ export default defineConfig({
     ],
     exclude: ['@monaco-editor/react'], // Large dependency, load on demand
   },
+  }
 })

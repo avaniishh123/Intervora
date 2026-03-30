@@ -38,7 +38,7 @@ export const useVoiceInterview = (config: VoiceInterviewConfig = {}) => {
     error: null
   });
 
-  const recognitionRef = useRef<InstanceType<typeof SpeechRecognition> | null>(null);
+  const recognitionRef = useRef<{ start: () => void; stop: () => void; continuous: boolean; interimResults: boolean; lang: string; onstart: ((e: Event) => void) | null; onresult: ((e: Event) => void) | null; onerror: ((e: Event) => void) | null; onend: ((e: Event) => void) | null } | null>(null);
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const synthesisRef = useRef<SpeechSynthesis | null>(null);
   const streamRef = useRef<MediaStream | null>(null);
@@ -92,9 +92,9 @@ export const useVoiceInterview = (config: VoiceInterviewConfig = {}) => {
       return null;
     }
 
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const SpeechRecognitionAPI = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
-    const recognition = new SpeechRecognitionAPI() as InstanceType<typeof SpeechRecognition>;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const recognition = new SpeechRecognitionAPI() as any;
 
     recognition.continuous = true;
     recognition.interimResults = true;
@@ -105,13 +105,14 @@ export const useVoiceInterview = (config: VoiceInterviewConfig = {}) => {
       setState(prev => ({ ...prev, isListening: true, error: null }));
     };
 
-    recognition.onresult = (event: SpeechRecognitionEvent) => {
+    recognition.onresult = (event: Event) => {
+      const speechEvent = event as unknown as { resultIndex: number; results: SpeechRecognitionResultList };
       let finalTranscript = '';
       let interimTranscript = '';
 
-      for (let i = event.resultIndex; i < event.results.length; i++) {
-        const transcript = event.results[i][0].transcript;
-        if (event.results[i].isFinal) {
+      for (let i = speechEvent.resultIndex; i < speechEvent.results.length; i++) {
+        const transcript = speechEvent.results[i][0].transcript;
+        if (speechEvent.results[i].isFinal) {
           finalTranscript += transcript;
         } else {
           interimTranscript += transcript;
@@ -123,18 +124,18 @@ export const useVoiceInterview = (config: VoiceInterviewConfig = {}) => {
         currentTranscript: finalTranscript || interimTranscript
       }));
 
-      // If we have a final result, process it
       if (finalTranscript) {
         console.log('🗣️ Final transcript:', finalTranscript);
         // Here you would send the transcript to your interview processing logic
       }
     };
 
-    recognition.onerror = (event: SpeechRecognitionErrorEvent) => {
-      console.error('❌ Speech recognition error:', event.error);
+    recognition.onerror = (event: Event) => {
+      const errEvent = event as unknown as { error: string };
+      console.error('❌ Speech recognition error:', errEvent.error);
       setState(prev => ({
         ...prev,
-        error: `Speech recognition error: ${event.error}`,
+        error: `Speech recognition error: ${errEvent.error}`,
         isListening: false
       }));
     };
