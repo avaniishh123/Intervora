@@ -49,24 +49,25 @@ const LoginPage = () => {
       navigate('/dashboard');
     } catch (error: any) {
       console.error('Login error:', error);
-      
-      // Check if it's a network error
-      if (error.code === 'ERR_NETWORK' || error.message === 'Network Error') {
+
+      const isTimeout = error.code === 'ECONNABORTED' || error.message?.includes('timeout');
+      const isNetwork = error.code === 'ERR_NETWORK' || error.message === 'Network Error';
+
+      if (isTimeout) {
+        setErrorMessage(
+          'The server is taking longer than expected to respond. Please try again — it may be waking up after inactivity.'
+        );
+      } else if (isNetwork) {
         setErrorMessage(
           'Cannot connect to server. Please check your internet connection or try again later.'
         );
       } else if (error.response) {
-        // Server responded with error
         setErrorMessage(
-          error.response.data?.message || 
+          error.response.data?.message ||
           'Login failed. Please check your credentials.'
         );
       } else {
-        // Other errors
-        setErrorMessage(
-          error.message || 
-          'Login failed. Please try again.'
-        );
+        setErrorMessage('Login failed. Please try again.');
       }
     } finally {
       setIsLoading(false);
@@ -95,21 +96,25 @@ const LoginPage = () => {
       }, 2000);
     } catch (error: any) {
       console.error('Forgot password error:', error);
-      
-      if (error.code === 'ERR_NETWORK' || error.message === 'Network Error') {
+
+      const isTimeout = error.code === 'ECONNABORTED' || error.message?.includes('timeout');
+      const isNetwork = error.code === 'ERR_NETWORK' || error.message === 'Network Error';
+
+      if (isTimeout) {
+        setForgotPasswordError(
+          'The server is taking longer than expected. Please try again.'
+        );
+      } else if (isNetwork) {
         setForgotPasswordError(
           'Cannot connect to server. Please ensure the backend is running.'
         );
       } else if (error.response) {
         setForgotPasswordError(
-          error.response.data?.message || 
+          error.response.data?.message ||
           'Failed to reset password. Please try again.'
         );
       } else {
-        setForgotPasswordError(
-          error.message || 
-          'Failed to reset password. Please try again.'
-        );
+        setForgotPasswordError('Failed to reset password. Please try again.');
       }
     } finally {
       setIsForgotPasswordLoading(false);
