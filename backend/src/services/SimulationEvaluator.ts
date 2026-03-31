@@ -9,150 +9,206 @@ interface EvalInput {
   allSubmissions: ISimulationSubmission[];
 }
 
+// ── Role-specific evaluation rubrics ─────────────────────────────────────────
+const ROLE_RUBRICS: Record<string, string> = {
+  'Software Engineer': `Evaluate on: (1) Correctness — does the logic solve the problem? (2) Code quality — naming, structure, readability. (3) Time/space complexity — is the approach optimal? (4) Edge case handling — empty input, overflow, duplicates. (5) Debugging approach — did they identify and fix the bug systematically?`,
+  'Backend Developer': `Evaluate on: (1) API design correctness. (2) Database query efficiency. (3) Error handling and validation. (4) Scalability considerations. (5) Security awareness (SQL injection, auth).`,
+  'Frontend Developer': `Evaluate on: (1) Component structure and reusability. (2) State management correctness. (3) Performance awareness (re-renders, memoization). (4) Accessibility considerations. (5) CSS/layout correctness.`,
+  'Full Stack Developer': `Evaluate on: (1) Frontend-backend integration understanding. (2) API design. (3) State management. (4) Database interaction. (5) End-to-end flow correctness.`,
+  'AI/ML Engineer': `Evaluate on: (1) Understanding of ML concepts (overfitting, data leakage, bias-variance). (2) Correct preprocessing pipeline. (3) Model selection reasoning. (4) Evaluation metric choice. (5) Practical implementation knowledge.`,
+  'Data Scientist': `Evaluate on: (1) Statistical reasoning accuracy. (2) Data interpretation correctness. (3) Feature engineering creativity. (4) Business insight quality. (5) SQL/query correctness.`,
+  'Cloud Engineer': `Evaluate on: (1) Architecture correctness and best practices. (2) Security and IAM understanding. (3) Cost optimization awareness. (4) High availability and fault tolerance. (5) Correct service selection (AWS/GCP/Azure).`,
+  'DevOps Engineer': `Evaluate on: (1) CI/CD pipeline correctness. (2) Infrastructure as code understanding. (3) Monitoring and observability. (4) Incident response quality. (5) Security and secrets management.`,
+  'Cybersecurity Engineer': `Evaluate on: (1) Vulnerability identification accuracy. (2) Attack vector classification. (3) Remediation quality and completeness. (4) Incident response procedure. (5) Regulatory/compliance awareness.`,
+};
+
+// ── Deterministic rule-based scorer (always runs, never fails) ───────────────
+function ruleBasedScore(submission: ISimulationSubmission, task: any): number {
+  if (submission.taskType === 'coding') {
+    const tr = submission.testResults;
+    if (!tr || tr.total === 0) return 20;
+    const passRate = tr.passed / tr.total;
+    const attemptPenalty = Math.max(0, (submission.attemptNumber - 1) * 4);
+    return Math.max(10, Math.round(passRate * 90) - attemptPenalty);
+  }
+  // Text/analysis submission
+  const content = typeof submission.content === 'string' ? submission.content : JSON.stringify(submission.content);
+  const words = content.trim().split(/\s+/).filter(Boolean).length;
+  if (words < 20) return 15;
+  if (words < 50) return 35;
+  const criteria: string[] = task.evaluationCriteria || [];
+  const lower = content.toLowerCase();
+  const hits = criteria.filter(c =>
+    c.toLowerCase().split(' ').some(w => w.length > 4 && lower.includes(w))
+  ).length;
+  const criteriaScore = criteria.length > 0 ? (hits / criteria.length) * 55 : 40;
+  return Math.min(95, Math.round(30 + criteriaScore));
+}
+
+// ── Parse Gemini JSON response safely ────────────────────────────────────────
+function parseGeminiJson<T>(raw: string, fallback: T): T {
+  try {
+    // Strip markdown code fences if present
+    const cleaned = raw.replace(/```json\s*/gi, '').replace(/```\s*/g, '').trim();
+    const match = cleaned.match(/\{[\s\S]*\}/);
+    if (match) return JSON.parse(match[0]) as T;
+  } catch (_) {}
+  return fallback;
+}
+
 export class SimulationEvaluator {
-  /**
-   * Rule-based scoring for code submissions
-   */
-  private scoreCodeSubmission(submission: ISimulationSubmission, task: any): number {
-    const testResults = submission.testResults;
-    if (!testResults) return 0;
-    const passRate = testResults.total > 0 ? testResults.passed / testResults.total : 0;
-    // Penalize for many attempts
-    const attemptPenalty = Math.max(0, (submission.attemptNumber - 1) * 5);
-    return Math.max(0, Math.round(passRate * 100) - attemptPenalty);
-  }
 
-  /**
-   * Rule-based scoring for text/explanation submissions
-   */
-  private scoreTextSubmission(submission: ISimulationSubmission, task: any): number {
-    const content = (submission.content as string) || '';
-    const wordCount = content.trim().split(/\s+/).length;
-    // Minimum viable answer: 50 words
-    if (wordCount < 20) return 10;
-    if (wordCount < 50) return 30;
-    // Check for key criteria mentions
-    const criteria: string[] = task.evaluationCriteria || [];
-    const lowerContent = content.toLowerCase();
-    const mentionedCriteria = criteria.filter((c: string) =>
-      c.toLowerCase().split(' ').some((word: string) => word.length > 4 && lowerContent.includes(word))
-    );
-    const criteriaScore = criteria.length > 0 ? (mentionedCriteria.length / criteria.length) * 60 : 40;
-    return Math.min(100, Math.round(30 + criteriaScore));
-  }
-
-  /**
-   * Compute behavioral metrics from events
-   */
-  private analyzeBehavior(events: any[], submissions: ISimulationSubmission[]) {
-    const runEvents = events.filter(e => e.type === 'code_run');
-    const errorEvents = events.filter(e => e.type === 'error_encountered');
-    const totalAttempts = submissions.reduce((s, sub) => s + sub.attemptNumber, 0);
-
-    return {
-      totalRuns: runEvents.length,
-      totalErrors: errorEvents.length,
-      totalAttempts,
-      avgAttemptsPerTask: submissions.length > 0 ? totalAttempts / submissions.length : 0,
-      iterativeApproach: runEvents.length > 2,
-    };
-  }
-
-  /**
-   * AI-based evaluation using Gemini
-   */
-  private async aiEvaluate(input: EvalInput): Promise<{ score: number; reasoning: string; strengths: string[]; weaknesses: string[] }> {
+  // ── Gemini evaluation with retry + fallback ──────────────────────────────
+  private async geminiEvaluate(input: EvalInput): Promise<{
+    score: number;
+    reasoning: string;
+    strengths: string[];
+    weaknesses: string[];
+    improvements: string[];
+    technicalAccuracy: number;
+    clarity: number;
+    depth: number;
+    edgeCaseHandling: string;
+    debuggingApproach: string;
+  }> {
     const { jobRole, task, submission } = input;
+    const rubric = ROLE_RUBRICS[jobRole] || ROLE_RUBRICS['Software Engineer'];
     const content = typeof submission.content === 'string'
       ? submission.content
       : JSON.stringify(submission.content, null, 2);
 
-    const prompt = `You are an expert ${jobRole} interviewer evaluating a simulation task submission.
+    const testSummary = submission.testResults
+      ? `Test results: ${submission.testResults.passed}/${submission.testResults.total} passed.`
+      : '';
 
-TASK: ${task.title}
-DESCRIPTION: ${task.description || task.scenario || ''}
-EVALUATION CRITERIA: ${JSON.stringify(task.evaluationCriteria || task.issues || [])}
+    const taskContext = task.scenario || task.description || task.problemStatement || '';
+    const criteria = (task.evaluationCriteria || task.issues || []).join('; ');
 
-CANDIDATE SUBMISSION:
+    const prompt = `You are a senior ${jobRole} interviewer conducting a technical simulation interview. Evaluate the candidate's submission with the precision and rigor of a FAANG-level technical interview.
+
+## Task
+Title: ${task.title}
+Difficulty: ${task.difficulty || 'medium'}
+Context: ${taskContext}
+Evaluation Criteria: ${criteria || 'Technical accuracy, clarity, depth, problem-solving approach'}
+
+## Candidate Submission
 ${content}
 
-${submission.testResults ? `TEST RESULTS: ${submission.testResults.passed}/${submission.testResults.total} tests passed` : ''}
+${testSummary}
 
-Evaluate this submission on a scale of 0-100. Respond in this exact JSON format:
+## Evaluation Rubric
+${rubric}
+
+## Instructions
+Score this submission from 0-100 based on the rubric. Be honest and precise — a correct, well-explained answer should score 75-95. A partial answer 40-70. An incorrect or minimal answer 10-40.
+
+Respond ONLY with valid JSON in this exact format (no markdown, no extra text):
 {
-  "score": <number 0-100>,
-  "reasoning": "<2-3 sentence overall assessment>",
-  "strengths": ["<strength 1>", "<strength 2>"],
-  "weaknesses": ["<weakness 1>", "<weakness 2>"],
-  "edgeCaseHandling": "<assessment of edge case handling>",
-  "debuggingApproach": "<assessment of problem-solving approach>"
+  "score": <integer 0-100>,
+  "technicalAccuracy": <integer 0-100>,
+  "clarity": <integer 0-100>,
+  "depth": <integer 0-100>,
+  "reasoning": "<2-3 sentence overall assessment referencing specific aspects of their answer>",
+  "strengths": ["<specific strength from their answer>", "<another specific strength>"],
+  "weaknesses": ["<specific gap or error in their answer>", "<another weakness>"],
+  "improvements": ["<concrete actionable improvement>", "<another improvement>"],
+  "edgeCaseHandling": "<assessment of how they handled edge cases or corner scenarios>",
+  "debuggingApproach": "<assessment of their problem-solving and debugging methodology>"
 }`;
 
-    try {
-      const result = await geminiService.generateRawContent(prompt);
-      const jsonMatch = result.match(/\{[\s\S]*\}/);
-      if (jsonMatch) {
-        return JSON.parse(jsonMatch[0]);
+    const fallback = {
+      score: ruleBasedScore(submission, task),
+      technicalAccuracy: 50,
+      clarity: 50,
+      depth: 50,
+      reasoning: `Submission evaluated for ${task.title}. ${testSummary}`,
+      strengths: ['Attempted the task', 'Provided a response'],
+      weaknesses: ['Could not fully assess — please review manually'],
+      improvements: ['Provide more detailed explanations', 'Address all evaluation criteria'],
+      edgeCaseHandling: 'Not fully assessed',
+      debuggingApproach: 'Not fully assessed',
+    };
+
+    for (let attempt = 1; attempt <= 3; attempt++) {
+      try {
+        const raw = await geminiService.generateRawContent(prompt);
+        const parsed = parseGeminiJson(raw, null);
+        if (parsed && typeof (parsed as any).score === 'number') {
+          const p = parsed as any;
+          return {
+            score: Math.min(100, Math.max(0, Math.round(p.score))),
+            technicalAccuracy: Math.min(100, Math.max(0, Math.round(p.technicalAccuracy || p.score))),
+            clarity: Math.min(100, Math.max(0, Math.round(p.clarity || p.score))),
+            depth: Math.min(100, Math.max(0, Math.round(p.depth || p.score))),
+            reasoning: p.reasoning || fallback.reasoning,
+            strengths: Array.isArray(p.strengths) ? p.strengths.slice(0, 4) : fallback.strengths,
+            weaknesses: Array.isArray(p.weaknesses) ? p.weaknesses.slice(0, 4) : fallback.weaknesses,
+            improvements: Array.isArray(p.improvements) ? p.improvements.slice(0, 3) : fallback.improvements,
+            edgeCaseHandling: p.edgeCaseHandling || fallback.edgeCaseHandling,
+            debuggingApproach: p.debuggingApproach || fallback.debuggingApproach,
+          };
+        }
+      } catch (err) {
+        console.warn(`Gemini evaluation attempt ${attempt}/3 failed:`, err);
+        if (attempt < 3) await new Promise(r => setTimeout(r, 800 * attempt));
       }
-    } catch (err) {
-      console.warn('AI evaluation failed, using rule-based fallback:', err);
     }
 
+    return fallback;
+  }
+
+  // ── Behavioral analysis ──────────────────────────────────────────────────
+  private analyzeBehavior(events: any[], submissions: ISimulationSubmission[]) {
+    const runs = events.filter(e => e.type === 'code_run').length;
+    const errors = events.filter(e => e.type === 'error_encountered').length;
+    const totalAttempts = submissions.reduce((s, sub) => s + sub.attemptNumber, 0);
     return {
-      score: 50,
-      reasoning: 'Evaluation completed with partial analysis.',
-      strengths: ['Attempted the task'],
-      weaknesses: ['Could not fully evaluate submission'],
+      totalRuns: runs,
+      totalErrors: errors,
+      totalAttempts,
+      avgAttemptsPerTask: submissions.length > 0 ? totalAttempts / submissions.length : 0,
+      iterativeApproach: runs > 2,
     };
   }
 
-  /**
-   * Evaluate a single task submission
-   */
+  // ── Main evaluation entry point ──────────────────────────────────────────
   async evaluateSubmission(input: EvalInput): Promise<ISimulationEvaluation> {
     const { task, submission, events } = input;
 
-    // Rule-based score
-    const ruleScore = submission.taskType === 'coding'
-      ? this.scoreCodeSubmission(submission, task)
-      : this.scoreTextSubmission(submission, task);
+    const rule = ruleBasedScore(submission, task);
+    const ai = await this.geminiEvaluate(input);
 
-    // AI score
-    const aiResult = await this.aiEvaluate(input);
+    // Weighted blend: 35% rule-based (objective), 65% Gemini (qualitative)
+    const blended = Math.round(rule * 0.35 + ai.score * 0.65);
 
-    // Behavioral metrics
-    const behavior = this.analyzeBehavior(events, input.allSubmissions);
-
-    // Time performance (0-100): full score if under 80% of time limit
+    // Time performance
     const taskDuration = task.timeLimit || 900;
     const timeTaken = submission.submittedAt
       ? (new Date(submission.submittedAt).getTime() - Date.now()) / 1000 + taskDuration
-      : taskDuration;
-    const timePerformance = Math.max(0, Math.min(100, Math.round((1 - timeTaken / taskDuration) * 100 + 50)));
+      : taskDuration * 0.7;
+    const timePerf = Math.max(20, Math.min(100, Math.round((1 - Math.max(0, timeTaken) / taskDuration) * 100 + 50)));
 
-    // Weighted final score: 40% rule-based, 40% AI, 20% time
-    const finalScore = Math.round(ruleScore * 0.4 + aiResult.score * 0.4 + timePerformance * 0.2);
+    const finalScore = Math.min(100, Math.max(0, Math.round(blended * 0.85 + timePerf * 0.15)));
 
     return {
       taskId: task.id,
-      ruleBasedScore: ruleScore,
-      aiScore: aiResult.score,
-      finalScore: Math.min(100, Math.max(0, finalScore)),
-      correctness: ruleScore,
-      efficiency: timePerformance,
+      ruleBasedScore: rule,
+      aiScore: ai.score,
+      finalScore,
+      correctness: rule,
+      efficiency: timePerf,
       completionRate: submission.content ? 100 : 0,
-      timePerformance,
-      reasoning: aiResult.reasoning,
-      strengths: aiResult.strengths || [],
-      weaknesses: aiResult.weaknesses || [],
-      edgeCaseHandling: (aiResult as any).edgeCaseHandling || 'Not assessed',
-      debuggingApproach: (aiResult as any).debuggingApproach || 'Not assessed',
+      timePerformance: timePerf,
+      reasoning: ai.reasoning,
+      strengths: ai.strengths,
+      weaknesses: ai.weaknesses,
+      edgeCaseHandling: ai.edgeCaseHandling,
+      debuggingApproach: ai.debuggingApproach,
     };
   }
 
-  /**
-   * Generate the final simulation report
-   */
+  // ── Final report generation ──────────────────────────────────────────────
   async generateReport(
     jobRole: string,
     tasks: any[],
@@ -167,67 +223,101 @@ Evaluate this submission on a scale of 0-100. Respond in this exact JSON format:
 
     const sectionScores: Record<string, number> = {};
     evaluations.forEach(e => {
-      const task = tasks.find(t => t.id === e.taskId);
-      if (task) sectionScores[task.title] = e.finalScore;
+      const t = tasks.find(t => t.id === e.taskId);
+      if (t) sectionScores[t.title] = e.finalScore;
     });
 
-    const allStrengths = evaluations.flatMap(e => e.strengths);
-    const allWeaknesses = evaluations.flatMap(e => e.weaknesses);
+    const allStrengths = [...new Set(evaluations.flatMap(e => e.strengths))].slice(0, 6);
+    const allWeaknesses = [...new Set(evaluations.flatMap(e => e.weaknesses))].slice(0, 6);
 
-    const behavioralObservations: string[] = [];
-    if (behavior.iterativeApproach) behavioralObservations.push('Demonstrated iterative problem-solving approach');
-    if (behavior.totalRuns > 5) behavioralObservations.push('Actively tested code with multiple runs');
-    if (behavior.avgAttemptsPerTask > 3) behavioralObservations.push('Required multiple attempts — may benefit from planning before coding');
-    if (behavior.totalErrors < 2) behavioralObservations.push('Clean execution with minimal errors');
+    const behavioralObs: string[] = [];
+    if (behavior.iterativeApproach) behavioralObs.push('Demonstrated iterative problem-solving with multiple test runs');
+    if (behavior.totalRuns > 5) behavioralObs.push('Actively validated code — shows engineering discipline');
+    if (behavior.avgAttemptsPerTask > 3) behavioralObs.push('Required multiple attempts — planning before coding would help');
+    if (behavior.totalErrors < 2) behavioralObs.push('Clean execution with minimal runtime errors');
+    if (submissions.length === tasks.length) behavioralObs.push('Completed all assigned tasks within the session');
 
-    let hiringRecommendation: ISimulationReport['hiringRecommendation'];
-    if (avgScore >= 80) hiringRecommendation = 'Strong Hire';
-    else if (avgScore >= 65) hiringRecommendation = 'Hire';
-    else if (avgScore >= 50) hiringRecommendation = 'Borderline';
-    else hiringRecommendation = 'No Hire';
+    let rec: ISimulationReport['hiringRecommendation'];
+    if (avgScore >= 80) rec = 'Strong Hire';
+    else if (avgScore >= 65) rec = 'Hire';
+    else if (avgScore >= 50) rec = 'Borderline';
+    else rec = 'No Hire';
 
-    // AI-generated narrative
-    let aiNarrative = { candidateSummary: '', recruiterSummary: '', tips: [] as string[], risks: [] as string[], positives: [] as string[] };
-    try {
-      const prompt = `You are evaluating a ${jobRole} candidate who scored ${avgScore}/100 on a simulation interview.
-Section scores: ${JSON.stringify(sectionScores)}
-Strengths: ${allStrengths.slice(0, 4).join(', ')}
-Weaknesses: ${allWeaknesses.slice(0, 4).join(', ')}
-Behavioral: ${behavioralObservations.join(', ')}
+    // Build per-task detail for the Gemini report prompt
+    const taskDetails = evaluations.map(e => {
+      const t = tasks.find(t => t.id === e.taskId);
+      return `Task: ${t?.title || e.taskId} | Score: ${e.finalScore}/100 | Strengths: ${e.strengths.join(', ')} | Weaknesses: ${e.weaknesses.join(', ')}`;
+    }).join('\n');
 
-Generate a JSON response:
+    const reportPrompt = `You are a senior ${jobRole} hiring manager writing a post-interview evaluation report.
+
+## Candidate Performance Summary
+Role: ${jobRole}
+Overall Score: ${avgScore}/100
+Hiring Recommendation: ${rec}
+Tasks Completed: ${submissions.length}/${tasks.length}
+
+## Per-Task Breakdown
+${taskDetails || 'No tasks completed'}
+
+## Behavioral Observations
+${behavioralObs.join('; ') || 'No behavioral data'}
+
+## Key Strengths
+${allStrengths.join('; ') || 'None identified'}
+
+## Key Weaknesses
+${allWeaknesses.join('; ') || 'None identified'}
+
+Write a professional evaluation report. Respond ONLY with valid JSON (no markdown):
 {
-  "candidateSummary": "<2 sentence summary for the candidate>",
-  "recruiterSummary": "<2 sentence summary for the recruiter>",
-  "tips": ["<tip 1>", "<tip 2>", "<tip 3>"],
-  "risks": ["<risk 1>", "<risk 2>"],
-  "positives": ["<positive signal 1>", "<positive signal 2>"]
+  "candidateSummary": "<3-4 sentence honest assessment for the candidate — what they did well, what to improve, encouragement>",
+  "recruiterSummary": "<3-4 sentence assessment for the recruiter — technical fit, risk factors, recommendation rationale>",
+  "tips": ["<specific actionable tip 1>", "<specific actionable tip 2>", "<specific actionable tip 3>"],
+  "risks": ["<hiring risk 1>", "<hiring risk 2>"],
+  "positives": ["<positive signal 1>", "<positive signal 2>", "<positive signal 3>"]
 }`;
-      const result = await geminiService.generateRawContent(prompt);
-      const jsonMatch = result.match(/\{[\s\S]*\}/);
-      if (jsonMatch) aiNarrative = JSON.parse(jsonMatch[0]);
-    } catch (err) {
-      console.warn('Report narrative generation failed:', err);
+
+    let narrative = {
+      candidateSummary: `You scored ${avgScore}/100 in this ${jobRole} simulation. ${rec === 'Strong Hire' || rec === 'Hire' ? 'Strong performance overall.' : 'There is room for improvement in key areas.'}`,
+      recruiterSummary: `Candidate demonstrated ${rec.toLowerCase()} performance with an overall score of ${avgScore}/100 across ${evaluations.length} simulation tasks.`,
+      tips: ['Practice more real-world scenarios', 'Focus on edge cases and error handling', 'Review system design fundamentals'],
+      risks: allWeaknesses.slice(0, 2),
+      positives: allStrengths.slice(0, 3),
+    };
+
+    for (let attempt = 1; attempt <= 3; attempt++) {
+      try {
+        const raw = await geminiService.generateRawContent(reportPrompt);
+        const parsed = parseGeminiJson(raw, null);
+        if (parsed && (parsed as any).candidateSummary) {
+          narrative = parsed as typeof narrative;
+          break;
+        }
+      } catch (err) {
+        console.warn(`Report generation attempt ${attempt}/3 failed:`, err);
+        if (attempt < 3) await new Promise(r => setTimeout(r, 1000 * attempt));
+      }
     }
 
     return {
       overallScore: avgScore,
       sectionScores,
-      strengths: [...new Set(allStrengths)].slice(0, 5),
-      weaknesses: [...new Set(allWeaknesses)].slice(0, 5),
-      behavioralObservations,
+      strengths: allStrengths,
+      weaknesses: allWeaknesses,
+      behavioralObservations: behavioralObs,
       confidenceIndicators: behavior.iterativeApproach ? 'High — systematic approach observed' : 'Moderate',
-      hiringRecommendation,
-      hiringRationale: `Candidate scored ${avgScore}/100 across ${evaluations.length} simulation tasks.`,
+      hiringRecommendation: rec,
+      hiringRationale: `Candidate scored ${avgScore}/100 across ${evaluations.length} simulation tasks for the ${jobRole} role.`,
       candidateView: {
-        summary: aiNarrative.candidateSummary || `You scored ${avgScore}/100 in this simulation.`,
-        tips: aiNarrative.tips || ['Practice more real-world scenarios', 'Focus on edge cases'],
+        summary: narrative.candidateSummary,
+        tips: narrative.tips || [],
         areasToImprove: allWeaknesses.slice(0, 3),
       },
       recruiterView: {
-        summary: aiNarrative.recruiterSummary || `Candidate demonstrated ${hiringRecommendation.toLowerCase()} performance.`,
-        riskFactors: aiNarrative.risks || [],
-        positiveSignals: aiNarrative.positives || allStrengths.slice(0, 3),
+        summary: narrative.recruiterSummary,
+        riskFactors: narrative.risks || [],
+        positiveSignals: narrative.positives || allStrengths.slice(0, 3),
       },
     };
   }

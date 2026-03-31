@@ -7,9 +7,11 @@ import { useInterviewMedia } from '../hooks/useInterviewMedia';
 import CodeSimulation from '../components/simulation/CodeSimulation';
 import AnalysisSimulation from '../components/simulation/AnalysisSimulation';
 import api from '../services/api';
+import { getFallbackTasks, getTaskType as getFallbackTaskType } from '../data/simulationTaskLibrary';
 import '../styles/SimulationInterview.css';
 
-const CODE_ROLES = ['Software Engineer', 'Backend Developer', 'Frontend Developer', 'Full Stack Developer'];
+// All roles use the Q&A analysis format — no code editor mode
+const CODE_ROLES: string[] = [];
 
 const ROLE_META: Record<string, { icon: string; env: string; color: string }> = {
   'Software Engineer':      { icon: '💻', env: 'Code Lab',          color: '#3b82f6' },
@@ -70,6 +72,33 @@ export default function SimulationInterviewPage() {
 
   // ── Camera ref (direct video element — bypasses CameraPreview srcObject bug) ──
   const cameraVideoRef = useRef<HTMLVideoElement>(null);
+  const localCamStreamRef = useRef<MediaStream | null>(null);
+
+  // ── Start webcam immediately on mount (independent of screen share) ────────
+  useEffect(() => {
+    navigator.mediaDevices.getUserMedia({ video: true, audio: false })
+      .then(camStream => {
+        localCamStreamRef.current = camStream;
+        if (cameraVideoRef.current) {
+          cameraVideoRef.current.srcObject = camStream;
+        }
+      })
+      .catch(() => {
+        // Camera denied — video element stays blank, no crash
+      });
+    return () => {
+      localCamStreamRef.current?.getTracks().forEach(t => t.stop());
+    };
+  }, []);
+
+  // Re-attach stream if the video element re-mounts (e.g. after sidebar toggle)
+  const attachCameraRef = useCallback((video: HTMLVideoElement | null) => {
+    (cameraVideoRef as any).current = video;
+    if (video && localCamStreamRef.current) {
+      video.srcObject = localCamStreamRef.current;
+      video.play().catch(() => {});
+    }
+  }, []);
 
   // ── Timer state ────────────────────────────────────────────────────────────
   const [timeRemaining,     setTimeRemaining]     = useState(duration * 60);
@@ -109,11 +138,7 @@ export default function SimulationInterviewPage() {
   }, [setAvatarState]);
 
   // ── Attach camera stream directly to video element ─────────────────────────
-  useEffect(() => {
-    if (cameraVideoRef.current && stream) {
-      cameraVideoRef.current.srcObject = stream;
-    }
-  }, [stream]);
+  // Handled by attachCameraRef callback ref — no separate effect needed
 
   // ── Create session ─────────────────────────────────────────────────────────
   useEffect(() => {
@@ -123,26 +148,36 @@ export default function SimulationInterviewPage() {
       .then(res => {
         const d = res.data.data;
         setSimSessionId(d.sessionId);
-        setTasks(d.tasks || []);
-        setTaskType(d.taskType === 'coding' ? 'coding' : 'analysis');
+        // Use fallback tasks if backend returns empty array
+        const backendTasks = d.tasks || [];
+        const resolvedTasks = backendTasks.length > 0
+          ? backendTasks
+          // Tag fallback tasks with index-based IDs so backend can resolve them
+          : getFallbackTasks(role, duration).map((t, i) => ({ ...t, id: `task-${i}` }));
+        setTasks(resolvedTasks);
+        setTaskType(d.taskType === 'coding' ? 'coding' : getFallbackTaskType(role));
       })
       .catch(() => {
-        showNotif('error', 'Failed to create simulation session.');
-        setTimeout(() => navigate('/interview/setup'), 2000);
+        // On API failure, use fallback tasks and a local session ID
+        const fallback = getFallbackTasks(role, duration).map((t, i) => ({ ...t, id: `task-${i}` }));
+        setTasks(fallback);
+        setTaskType(getFallbackTaskType(role));
+        setSimSessionId('local-' + Date.now());
       })
       .finally(() => setIsCreating(false));
   }, [authReady, role, duration, navigate]);
 
-  // ── Start when ready — only after proctoring is fully active ─────────────
+  // ── Start when ready — start as soon as session + stream are ready ──────────
   useEffect(() => {
-    if (simSessionId && isStreamReady && !sessionStarted && proctoringState.phase === 'active') {
+    if (simSessionId && isStreamReady && !sessionStarted) {
+      // Start regardless of proctoring phase so tasks always appear
       setSessionStarted(true);
       setTimerActive(true);
       setAvatarState('listening');
       const welcome = `Welcome to your ${role} simulation. I'm your AI interviewer. Complete the tasks in the workspace. I'll provide hints and follow-ups as you progress. Good luck!`;
       setTimeout(() => speak(welcome), 800);
     }
-  }, [simSessionId, isStreamReady, sessionStarted, proctoringState.phase, setAvatarState, role, speak]);
+  }, [simSessionId, isStreamReady, sessionStarted, setAvatarState, role, speak]);
 
   // ── Countdown ──────────────────────────────────────────────────────────────
   useEffect(() => {
@@ -150,11 +185,11 @@ export default function SimulationInterviewPage() {
     timerRef.current = window.setInterval(() => {
       setTimeRemaining(prev => {
         const next = prev - 1;
-        if (next <= 12 && !closingRef.current) {
+        if (next <= 10 && !closingRef.current) {
           closingRef.current = true;
           setClosingShown(true);
           setAvatarState('speaking');
-          speak('We have come to the end of this session. Thank you for attending.');
+          speak('Thank you for attending the interview. We have come to the end of the interview. Please have a look into your report soon.');
         }
         if (next <= 0) { if (timerRef.current) clearInterval(timerRef.current); return 0; }
         return next;
@@ -245,10 +280,11 @@ export default function SimulationInterviewPage() {
     }, 2000);
   }, [simSessionId, tasks, currentTaskIdx, setAvatarState, handleAutoEnd, speak]);
 
-  // ── Event tracker ──────────────────────────────────────────────────────────
-  const handleEvent = useCallback(async (type: string, data?: any) => {
-    if (!simSessionId) return;
-    try { await api.post(`/api/simulation/${simSessionId}/event`, { type, data }); } catch {}
+  // ── Event tracker — fire-and-forget, never blocks UI ─────────────────────
+  const handleEvent = useCallback((type: string, data?: any) => {
+    if (!simSessionId || simSessionId.startsWith('local-')) return;
+    // Non-blocking: don't await, don't surface errors to user
+    api.post(`/api/simulation/${simSessionId}/event`, { type, data }).catch(() => {});
   }, [simSessionId]);
 
   const isCodeRole = CODE_ROLES.includes(role);
@@ -474,7 +510,7 @@ export default function SimulationInterviewPage() {
                 </div>
                 <div className="sim-camera-wrap">
                   <video
-                    ref={cameraVideoRef}
+                    ref={attachCameraRef}
                     autoPlay
                     playsInline
                     muted

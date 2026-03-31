@@ -1,0 +1,70 @@
+[
+  {
+    "id": "seqa-001",
+    "title": "Fix the Binary Search Bug",
+    "difficulty": "medium",
+    "timeLimit": 900,
+    "description": "A binary search implementation has critical bugs causing infinite loops and wrong results.",
+    "scenario": "You are reviewing a pull request from a junior engineer. The binary search function below has multiple bugs that cause it to loop infinitely or return incorrect results. Your task is to identify every bug, explain why it is wrong, and provide the corrected implementation.",
+    "brokenCode": "function binarySearch(arr, target) {\n  let left = 0;\n  let right = arr.length;  // BUG 1\n\n  while (left < right) {  // BUG 2\n    const mid = Math.floor((left + right) / 2);\n    if (arr[mid] === target) return mid;\n    if (arr[mid] < target) left = mid;  // BUG 3\n    else right = mid;  // BUG 4\n  }\n  return -1;\n}",
+    "questions": [
+      "Identify all bugs in this binary search implementation and explain why each one is incorrect.",
+      "What is the correct time complexity of binary search and how does each bug affect it?",
+      "Rewrite the corrected binarySearch function with proper boundary conditions.",
+      "What edge cases must a correct binary search handle? Does your fix address all of them?"
+    ],
+    "evaluationCriteria": [
+      "Identifies right = arr.length should be arr.length - 1",
+      "Identifies left < right should be left <= right",
+      "Identifies left = mid should be left = mid + 1",
+      "Identifies right = mid should be right = mid - 1",
+      "Explains O(log n) time complexity",
+      "Handles empty array and single-element edge cases"
+    ]
+  },
+  {
+    "id": "seqa-002",
+    "title": "Diagnose a Memory Leak in Node.js",
+    "difficulty": "hard",
+    "timeLimit": 1200,
+    "description": "A Node.js service is leaking memory and crashing after 24 hours in production.",
+    "scenario": "Your team's Node.js API server crashes every 24 hours with an out-of-memory error. The heap grows from 200MB to 2GB over time. Review the code below and diagnose the root cause.",
+    "brokenCode": "const express = require('express');\nconst app = express();\n\n// Global cache — never cleared\nconst requestCache = {};\n\napp.get('/data/:id', async (req, res) => {\n  const { id } = req.params;\n  \n  // Cache every request forever\n  if (!requestCache[id]) {\n    requestCache[id] = await fetchFromDB(id);\n  }\n  \n  // Event listener added on every request — never removed\n  process.on('uncaughtException', (err) => {\n    console.error('Error for request', id, err);\n  });\n  \n  res.json(requestCache[id]);\n});\n\n// Interval that accumulates closures\nlet intervals = [];\nfunction startMonitoring() {\n  const interval = setInterval(() => {\n    console.log('Cache size:', Object.keys(requestCache).length);\n  }, 1000);\n  intervals.push(interval); // Never cleared\n}\nstartMonitoring();\nstartMonitoring();\nstartMonitoring();",
+    "questions": [
+      "Identify all memory leak sources in this code and explain the mechanism of each leak.",
+      "Why is adding event listeners inside a request handler particularly dangerous?",
+      "How would you implement a proper bounded cache with TTL (time-to-live) eviction?",
+      "What Node.js tools and techniques would you use to diagnose and confirm a memory leak in production?"
+    ],
+    "evaluationCriteria": [
+      "Identifies unbounded requestCache as primary leak",
+      "Identifies event listener accumulation on process object",
+      "Identifies interval accumulation without clearInterval",
+      "Proposes LRU cache or TTL-based eviction",
+      "Mentions heap profiling tools (--inspect, clinic.js, heapdump)",
+      "Suggests WeakMap or bounded Map for caching"
+    ]
+  },
+  {
+    "id": "seqa-003",
+    "title": "Design a URL Shortener System",
+    "difficulty": "hard",
+    "timeLimit": 1200,
+    "description": "Design a scalable URL shortener service handling 100M URLs and 10B redirects/month.",
+    "scenario": "You are the lead engineer tasked with designing a URL shortener (like bit.ly). The system must handle 100 million stored URLs and 10 billion redirect requests per month. Design the architecture, data model, and key algorithms.",
+    "questions": [
+      "Estimate the storage and throughput requirements. How many redirects per second must the system handle?",
+      "Design the database schema and explain your choice of database (SQL vs NoSQL). How would you generate unique short codes?",
+      "How would you design the caching layer to handle the read-heavy workload? What cache eviction policy would you use?",
+      "What are the failure modes of this system and how would you handle them? Describe your approach to high availability."
+    ],
+    "evaluationCriteria": [
+      "Correctly estimates ~3,800 redirects/second",
+      "Proposes base62 encoding or hash-based short code generation",
+      "Identifies read-heavy nature and proposes Redis/CDN caching",
+      "Discusses LRU eviction for cache",
+      "Addresses single points of failure with replication",
+      "Mentions consistent hashing for distributed storage"
+    ]
+  }
+]
