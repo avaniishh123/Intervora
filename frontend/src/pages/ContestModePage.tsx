@@ -63,6 +63,7 @@ export default function ContestModePage() {
 
   const [totalSecs, setTotalSecs] = useState(0);
   const [qSecs, setQSecs] = useState(30);
+  const [autoAdvance, setAutoAdvance] = useState(0); // incremented by timer to trigger auto-advance
   const totalRef = useRef(0);
   const qRef = useRef(30);
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
@@ -88,6 +89,19 @@ export default function ContestModePage() {
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [phase, answered, mcqIdx]);
 
+  // Auto-advance when per-question timer expires
+  useEffect(() => {
+    if (autoAdvance === 0) return;
+    if (phase === 'mcq') {
+      // If not yet answered, mark as skipped then advance
+      if (!answered) { setAnswered(true); }
+      handleNextMCQ();
+    } else if (phase === 'interview') {
+      if (!evalResult && !submitting) handleNextInterview();
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [autoAdvance]);
+
   const startTimers = useCallback((durationMins: number) => {
     const totalSeconds = durationMins * 60;
     totalRef.current = totalSeconds;
@@ -101,6 +115,8 @@ export default function ContestModePage() {
       setTotalSecs(totalRef.current);
       setQSecs(qRef.current);
       if (totalRef.current <= 0) { clearInterval(timerRef.current!); setPhase('results'); }
+      // Auto-advance question when per-question timer expires
+      if (qRef.current <= 0) { qRef.current = 30; setQSecs(30); setAutoAdvance(v => v + 1); }
     }, 1000);
   }, []);
 
@@ -113,30 +129,80 @@ export default function ContestModePage() {
     setSetupError('');
     setPhase('loading');
     const cfg = DURATION_CONFIG[duration];
+
+    // Cap MCQ count per request to avoid Gemini timeouts — fetch in batches if needed
+    const MCQ_BATCH_LIMIT = 10;
+    const mcqTarget = cfg.mcqCount;
+
+    let rawMcqs: MCQ[] = [];
+    let lastError = '';
+
+    // Retry up to 2 times for MCQ generation
+    for (let attempt = 1; attempt <= 2; attempt++) {
+      try {
+        const batchCount = Math.min(mcqTarget, MCQ_BATCH_LIMIT);
+        const mcqRes = await api.post('/api/gemini/generate-mcq', {
+          role: role.trim(),
+          count: batchCount,
+          difficulty: 'mixed',
+        }, { timeout: 45000 });
+
+        const batch = parseMCQs(mcqRes.data?.data?.questions ?? [], batchCount);
+        rawMcqs = batch;
+
+        // If we need more and first batch succeeded, fetch a second batch
+        if (mcqTarget > MCQ_BATCH_LIMIT && batch.length >= 5) {
+          try {
+            const mcqRes2 = await api.post('/api/gemini/generate-mcq', {
+              role: role.trim(),
+              count: Math.min(mcqTarget - batch.length, MCQ_BATCH_LIMIT),
+              difficulty: 'mixed',
+            }, { timeout: 45000 });
+            const batch2 = parseMCQs(mcqRes2.data?.data?.questions ?? [], mcqTarget - batch.length);
+            rawMcqs = [...batch, ...batch2];
+          } catch {
+            // Second batch failed — proceed with first batch only
+          }
+        }
+
+        if (rawMcqs.length > 0) break; // success
+        lastError = 'No valid MCQs returned. Please try again.';
+      } catch (err: any) {
+        lastError = err?.response?.data?.message || err?.message || 'MCQ generation failed.';
+        if (attempt < 2) await new Promise(r => setTimeout(r, 1500));
+      }
+    }
+
+    if (rawMcqs.length === 0) {
+      setSetupError(`Failed to generate questions: ${lastError}`);
+      setPhase('setup');
+      return;
+    }
+
+    // Generate interview questions (with fallback)
+    let rawInt: InterviewQ[] = [];
     try {
-      const mcqRes = await api.post('/api/gemini/generate-questions', {
-        role: role.trim(),
-        count: Math.min(cfg.mcqCount, 10),
-        difficulty: 'medium',
-        jobDescription: buildMCQPrompt(role.trim(), cfg.mcqCount),
-      });
-      const rawMcqs = parseMCQs(mcqRes.data?.data?.questions ?? [], cfg.mcqCount);
       const intRes = await api.post('/api/gemini/generate-questions', {
         role: role.trim(),
         count: cfg.interviewCount,
         difficulty: 'hard',
-      });
-      const rawInt: InterviewQ[] = (intRes.data?.data?.questions ?? [])
+      }, { timeout: 30000 });
+      rawInt = (intRes.data?.data?.questions ?? [])
         .slice(0, cfg.interviewCount)
-        .map((q: any) => ({ id: q.id ?? String(Math.random()), text: q.text ?? q }));
-      setMcqs(rawMcqs);
-      setInterviewQs(rawInt);
-      setPhase('mcq');
-      startTimers(duration);
+        .map((q: any) => ({ id: q.id ?? String(Math.random()), text: q.text ?? String(q) }))
+        .filter((q: InterviewQ) => q.text && q.text.length > 10);
     } catch {
-      setSetupError('Failed to generate questions. Please try again.');
-      setPhase('setup');
+      // Fallback interview questions if generation fails
+      rawInt = Array.from({ length: cfg.interviewCount }, (_, i) => ({
+        id: `fallback-${i}`,
+        text: `Describe a challenging ${role.trim()} problem you solved and how you approached it.`,
+      }));
     }
+
+    setMcqs(rawMcqs);
+    setInterviewQs(rawInt);
+    setPhase('mcq');
+    startTimers(duration);
   }
 
   function handleSelectOption(key: 'A' | 'B' | 'C' | 'D') {
@@ -642,28 +708,31 @@ Return ONLY a JSON array of these objects, no extra text.`;
 
 function parseMCQs(questions: any[], targetCount: number): MCQ[] {
   const result: MCQ[] = [];
+
   for (const q of questions) {
+    // Direct MCQ object from the new /generate-mcq endpoint
+    if (isMCQ(q)) { result.push(q); continue; }
+
+    // Fallback: try parsing if it's a string
     if (typeof q === 'string') {
       try {
         const parsed = JSON.parse(q);
         if (Array.isArray(parsed)) result.push(...parsed.filter(isMCQ));
         else if (isMCQ(parsed)) result.push(parsed);
-      } catch { result.push(makeFallbackMCQ(q, result.length)); }
+      } catch { /* skip unparseable strings */ }
       continue;
     }
-    if (isMCQ(q)) { result.push(q); continue; }
+
+    // Fallback: question has a text field but missing options — try inner parse
     if (q?.text) {
       try {
         const inner = JSON.parse(q.text);
         if (Array.isArray(inner)) result.push(...inner.filter(isMCQ));
         else if (isMCQ(inner)) result.push(inner);
-        else result.push(makeFallbackMCQ(q.text, result.length));
-      } catch { result.push(makeFallbackMCQ(q.text, result.length)); }
+      } catch { /* skip */ }
     }
   }
-  while (result.length < Math.min(targetCount, 5)) {
-    result.push(makeFallbackMCQ(`Technical question ${result.length + 1}`, result.length));
-  }
+
   return result.slice(0, targetCount);
 }
 
