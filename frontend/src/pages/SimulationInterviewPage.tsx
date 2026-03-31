@@ -189,7 +189,7 @@ export default function SimulationInterviewPage() {
           closingRef.current = true;
           setClosingShown(true);
           setAvatarState('speaking');
-          speak('Thank you for attending the interview. We have come to the end of the interview. Please have a look into your report soon.');
+          speak('Thank you for attending the simulation. We have come to the end of the session. Returning you to the dashboard shortly.');
         }
         if (next <= 0) { if (timerRef.current) clearInterval(timerRef.current); return 0; }
         return next;
@@ -244,7 +244,7 @@ export default function SimulationInterviewPage() {
     } catch {}
 
     try { await api.post(`/api/simulation/${simSessionId}/complete`, { recordingUrl }); } catch {}
-    navigate(`/interview/simulation/report?sessionId=${simSessionId}`);
+    navigate('/dashboard');
   }, [simSessionId, stopRecording, navigate, setAvatarState]);
 
   // ── Task submit ────────────────────────────────────────────────────────────
@@ -252,13 +252,13 @@ export default function SimulationInterviewPage() {
     if (!simSessionId || !tasks[currentTaskIdx]) return;
     const taskId = tasks[currentTaskIdx].id;
     setTaskResults(prev => [...prev, { taskId, ...result }]);
-    showNotif('success', `Task scored: ${result.score}/100`);
+    showNotif('success', 'Task submitted successfully.');
     setAvatarState('celebrating');
 
-    // AI follow-up message + TTS
-    const followUp = result.score >= 70
-      ? `Great work on that task! You scored ${result.score} out of 100. ${result.strengths[0] || 'Well done.'}`
-      : `You scored ${result.score} out of 100. ${result.weaknesses[0] || 'Keep practicing.'} Let's move to the next challenge.`;
+    // AI follow-up message + TTS — no score references
+    const followUp = currentTaskIdx < tasks.length - 1
+      ? `Good effort on that task. Let's keep the momentum going.`
+      : `Well done for completing all the tasks. Your session is wrapping up now.`;
     setAiMessages(prev => [...prev, { role: 'ai', text: followUp }]);
     speak(followUp);
 
@@ -272,13 +272,20 @@ export default function SimulationInterviewPage() {
         speak(nextMsg);
       } else {
         showNotif('success', 'All tasks complete! Ending session...');
-        const doneMsg = 'You have completed all tasks. Generating your simulation report now.';
+        const doneMsg = 'You have completed all tasks. Thank you for participating in this simulation session.';
         setAiMessages(prev => [...prev, { role: 'ai', text: doneMsg }]);
         speak(doneMsg);
         setTimeout(() => handleAutoEnd(), 2000);
       }
     }, 2000);
   }, [simSessionId, tasks, currentTaskIdx, setAvatarState, handleAutoEnd, speak]);
+
+  // ── Score update from Gemini (called after async AI evaluation completes) ──
+  const handleScoreUpdate = useCallback((taskIdx: number, geminiScore: number) => {
+    setTaskResults(prev => prev.map((r, i) =>
+      i === taskIdx ? { ...r, score: geminiScore } : r
+    ));
+  }, []);
 
   // ── Event tracker — fire-and-forget, never blocks UI ─────────────────────
   const handleEvent = useCallback((type: string, data?: any) => {
@@ -557,10 +564,8 @@ export default function SimulationInterviewPage() {
                           </div>
                           <div className="sim-task-item-info">
                             <div className="sim-task-item-title">{t.title || `Task ${i + 1}`}</div>
-                            {isDone && result && (
-                              <div className="sim-task-item-score" style={{ color: result.score >= 70 ? '#10b981' : result.score >= 50 ? '#f59e0b' : '#ef4444' }}>
-                                {result.score}/100
-                              </div>
+                            {isDone && (
+                              <div className="sim-task-item-status" style={{ color: meta.color }}>Submitted ✓</div>
                             )}
                             {isActive && !isDone && (
                               <div className="sim-task-item-status" style={{ color: meta.color }}>In progress</div>
@@ -643,15 +648,7 @@ export default function SimulationInterviewPage() {
               <div className="sim-session-end">
                 <div className="sim-session-end-icon">🎉</div>
                 <h2>Session Complete</h2>
-                <p>Generating your simulation report...</p>
-                <div className="sim-session-end-scores">
-                  {taskResults.map((r, i) => (
-                    <div key={i} className="sim-end-score-chip" style={{ borderColor: r.score >= 70 ? '#10b981' : r.score >= 50 ? '#f59e0b' : '#ef4444' }}>
-                      <span>Task {i + 1}</span>
-                      <strong style={{ color: r.score >= 70 ? '#10b981' : r.score >= 50 ? '#f59e0b' : '#ef4444' }}>{r.score}/100</strong>
-                    </div>
-                  ))}
-                </div>
+                <p>Thank you for completing the simulation. Returning to dashboard...</p>
               </div>
             ) : currentTask ? (
               isCodeRole && taskType === 'coding' ? (
@@ -668,7 +665,9 @@ export default function SimulationInterviewPage() {
                   sessionId={simSessionId!}
                   task={currentTask}
                   jobRole={role}
+                  isSpeaking={isSpeaking}
                   onSubmit={handleTaskSubmit}
+                  onScoreUpdate={(score) => handleScoreUpdate(currentTaskIdx, score)}
                   onEvent={handleEvent}
                 />
               )

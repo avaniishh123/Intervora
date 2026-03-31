@@ -5,10 +5,11 @@ import { simulationEvaluator } from '../services/SimulationEvaluator';
 import path from 'path';
 import fs from 'fs';
 
-// Load task templates
+// Load task templates — use require() so JSON is resolved at compile time
+// This works in both ts-node (dev) and compiled dist/ (prod)
 function loadTasks(jobRole: string): any[] {
   const roleToFile: Record<string, string> = {
-    'Software Engineer': 'coding-qa',   // Q&A analysis format
+    'Software Engineer': 'coding-qa',
     'Backend Developer': 'coding-qa',
     'Frontend Developer': 'coding-qa',
     'Full Stack Developer': 'coding-qa',
@@ -19,12 +20,27 @@ function loadTasks(jobRole: string): any[] {
     'DevOps Engineer': 'devops',
   };
   const file = roleToFile[jobRole] || 'coding-qa';
-  const filePath = path.join(__dirname, '../data/simulationTasks', `${file}.json`);
-  try {
-    return JSON.parse(fs.readFileSync(filePath, 'utf-8'));
-  } catch {
-    return [];
+
+  // Try multiple path strategies to handle both dev (ts-node) and prod (dist/) environments
+  const candidates = [
+    path.join(__dirname, '../data/simulationTasks', `${file}.json`),           // dist/controllers -> dist/data
+    path.join(__dirname, '../../src/data/simulationTasks', `${file}.json`),    // dist/controllers -> src/data
+    path.join(process.cwd(), 'src/data/simulationTasks', `${file}.json`),      // cwd/src/data
+    path.join(process.cwd(), 'dist/data/simulationTasks', `${file}.json`),     // cwd/dist/data
+  ];
+
+  for (const filePath of candidates) {
+    try {
+      if (fs.existsSync(filePath)) {
+        return JSON.parse(fs.readFileSync(filePath, 'utf-8'));
+      }
+    } catch {
+      // try next candidate
+    }
   }
+
+  console.error(`[SimulationController] Could not find task file "${file}.json". Tried: ${candidates.join(', ')}`);
+  return [];
 }
 
 // Determine task type from job role — all roles now use analysis/Q&A format
@@ -173,11 +189,30 @@ export class SimulationController {
 
       // ── Immediate rule-based score (never blocks) ──────────────────────────
       const testResultsData = testResults as { passed: number; total: number } | undefined;
-      const passRate = testResultsData && testResultsData.total > 0
-        ? testResultsData.passed / testResultsData.total
-        : 0;
       const attemptPenalty = Math.max(0, (prevAttempts) * 4);
-      const immediateScore = Math.max(10, Math.round(passRate * 90) - attemptPenalty);
+
+      let immediateScore: number;
+      if (testResultsData && testResultsData.total > 0) {
+        // Coding task with real test results
+        const passRate = testResultsData.passed / testResultsData.total;
+        immediateScore = Math.max(10, Math.round(passRate * 90) - attemptPenalty);
+      } else {
+        // Text/analysis task — score based on content length and substance
+        const contentStr = typeof content === 'string' ? content : JSON.stringify(content || '');
+        const wordCount = contentStr.trim().split(/\s+/).filter(Boolean).length;
+        if (wordCount < 10) {
+          immediateScore = 15;
+        } else if (wordCount < 30) {
+          immediateScore = 35;
+        } else if (wordCount < 60) {
+          immediateScore = 50;
+        } else if (wordCount < 100) {
+          immediateScore = 60;
+        } else {
+          immediateScore = 65;
+        }
+        immediateScore = Math.max(15, immediateScore - attemptPenalty);
+      }
 
       const immediateEvaluation = {
         taskId: resolvedTaskId,
@@ -188,9 +223,9 @@ export class SimulationController {
         efficiency: 70,
         completionRate: content ? 100 : 0,
         timePerformance: 70,
-        reasoning: `${testResultsData ? `${testResultsData.passed}/${testResultsData.total} test cases passed.` : 'Submission received.'} AI analysis running in background.`,
+        reasoning: `${testResultsData ? `${testResultsData.passed}/${testResultsData.total} test cases passed.` : 'Submission received — Gemini AI analysis running in background.'}`,
         strengths: immediateScore >= 70 ? ['Correct logic', 'Tests passing'] : ['Attempted the problem'],
-        weaknesses: immediateScore < 70 ? ['Some test cases failing — review edge cases'] : [],
+        weaknesses: immediateScore < 70 ? ['Gemini AI is analyzing your response for detailed feedback'] : [],
         edgeCaseHandling: 'Pending AI analysis',
         debuggingApproach: 'Pending AI analysis',
       };
@@ -263,42 +298,109 @@ export class SimulationController {
       }
 
       if (session.status !== 'in-progress') {
-        res.status(400).json({ status: 'error', message: 'Session is not in progress' }); return;
+        // Already completed — return existing report
+        res.status(200).json({ status: 'success', data: { session, report: session.report } });
+        return;
       }
 
-      // Generate final report
-      const report = await simulationEvaluator.generateReport(
-        session.jobRole,
-        session.tasks,
-        session.submissions as any[],
-        session.evaluations as any[],
-        session.events
-      );
+      // ── Wait briefly for any in-flight background Gemini evaluations to settle ──
+      // Background evals from submitTask run via setImmediate — give them up to 2s
+      await new Promise(r => setTimeout(r, 500));
+      const freshForComplete = await SimulationSession.findById(id);
+      const sessionToComplete = freshForComplete || session;
+
+      // ── Build immediate synthetic report from existing evaluations ──────────
+      const evaluations: any[] = sessionToComplete.evaluations || [];
+      const avgScore = evaluations.length > 0
+        ? Math.round(evaluations.reduce((s: number, e: any) => s + (e.finalScore || 0), 0) / evaluations.length)
+        : 0;
+
+      const sectionScores: Record<string, number> = {};
+      evaluations.forEach((e: any) => {
+        const t = sessionToComplete.tasks.find((t: any) => t.id === e.taskId);
+        if (t) sectionScores[t.title || e.taskId] = e.finalScore || 0;
+      });
+
+      const allStrengths = [...new Set(evaluations.flatMap((e: any) => e.strengths || []))].filter(
+        (s: string) => s && !s.includes('Pending AI analysis') && !s.includes('Gemini AI is analyzing')
+      ).slice(0, 5);
+      const allWeaknesses = [...new Set(evaluations.flatMap((e: any) => e.weaknesses || []))].filter(
+        (w: string) => w && !w.includes('Pending AI analysis') && !w.includes('Gemini AI is analyzing')
+      ).slice(0, 5);
+
+      let hiringRec: 'Strong Hire' | 'Hire' | 'Borderline' | 'No Hire';
+      if (avgScore >= 80) hiringRec = 'Strong Hire';
+      else if (avgScore >= 65) hiringRec = 'Hire';
+      else if (avgScore >= 50) hiringRec = 'Borderline';
+      else hiringRec = 'No Hire';
+
+      const immediateReport = {
+        overallScore: avgScore,
+        sectionScores,
+        strengths: allStrengths.length > 0 ? allStrengths : ['Completed the simulation'],
+        weaknesses: allWeaknesses.length > 0 ? allWeaknesses : ['Continue practicing for improvement'],
+        behavioralObservations: [
+          `Completed ${evaluations.length} of ${sessionToComplete.tasks.length} tasks`,
+          sessionToComplete.metadata?.totalAttempts > 0 ? `Made ${sessionToComplete.metadata.totalAttempts} submission attempts` : 'Session completed',
+        ],
+        confidenceIndicators: avgScore >= 70 ? 'High — consistent performance observed' : 'Moderate',
+        hiringRecommendation: hiringRec,
+        hiringRationale: `Candidate scored ${avgScore}/100 across ${evaluations.length} simulation tasks for the ${sessionToComplete.jobRole} role.`,
+        candidateView: {
+          summary: `You scored ${avgScore}/100 in this ${sessionToComplete.jobRole} simulation. ${hiringRec === 'Strong Hire' || hiringRec === 'Hire' ? 'Strong performance — keep it up!' : 'Review the feedback and practice the areas highlighted.'}`,
+          tips: ['Review each task\'s evaluation criteria', 'Practice explaining your reasoning clearly', 'Focus on depth and specificity in answers'],
+          areasToImprove: allWeaknesses.slice(0, 3),
+        },
+        recruiterView: {
+          summary: `Candidate demonstrated ${hiringRec.toLowerCase()} performance with ${avgScore}/100 overall score.`,
+          riskFactors: allWeaknesses.slice(0, 2),
+          positiveSignals: allStrengths.slice(0, 3),
+        },
+      };
 
       session.status = 'completed';
       session.endTime = new Date();
-      session.report = report;
+      session.report = immediateReport;
       if (recordingUrl) session.recordingUrl = recordingUrl;
-
       await session.save();
 
-      // Update user stats
-      try {
-        const user = await User.findById(userId);
-        if (user) {
-          user.profile.totalSessions = (user.profile.totalSessions || 0) + 1;
-          const prev = user.profile.averageScore || 0;
-          const total = user.profile.totalSessions;
-          user.profile.averageScore = Math.round(((prev * (total - 1)) + report.overallScore) / total * 100) / 100;
-          await user.save();
-        }
-      } catch (e) {
-        console.warn('Could not update user stats:', e);
-      }
-
+      // ── Respond immediately with synthetic report ──────────────────────────
       res.status(200).json({
         status: 'success',
-        data: { session, report },
+        data: { session, report: immediateReport },
+      });
+
+      // ── Run Gemini report generation in background ─────────────────────────
+      setImmediate(async () => {
+        try {
+          const aiReport = await simulationEvaluator.generateReport(
+            session.jobRole,
+            session.tasks,
+            session.submissions as any[],
+            session.evaluations as any[],
+            session.events
+          );
+          const freshSession = await SimulationSession.findById(id);
+          if (freshSession) {
+            freshSession.report = aiReport;
+            await freshSession.save();
+          }
+          // Update user stats with AI score
+          try {
+            const user = await User.findById(userId);
+            if (user) {
+              user.profile.totalSessions = (user.profile.totalSessions || 0) + 1;
+              const prev = user.profile.averageScore || 0;
+              const total = user.profile.totalSessions;
+              user.profile.averageScore = Math.round(((prev * (total - 1)) + aiReport.overallScore) / total * 100) / 100;
+              await user.save();
+            }
+          } catch (e) {
+            console.warn('Could not update user stats:', e);
+          }
+        } catch (bgErr) {
+          console.warn('Background report generation failed (non-critical):', bgErr);
+        }
       });
     } catch (err) {
       next(err);

@@ -100,8 +100,19 @@ ${testSummary}
 ## Evaluation Rubric
 ${rubric}
 
-## Instructions
-Score this submission from 0-100 based on the rubric. Be honest and precise — a correct, well-explained answer should score 75-95. A partial answer 40-70. An incorrect or minimal answer 10-40.
+## CRITICAL SCORING RULES — READ CAREFULLY:
+1. A score of 0 is ONLY for completely blank, gibberish, or totally off-topic submissions. Any submission with relevant technical content must score at least 15.
+2. Partial credit is MANDATORY. If the candidate addresses even one evaluation criterion correctly, they earn at least 25 points.
+3. For text/analysis submissions: score based on technical accuracy (40%), relevance to scenario (25%), completeness (20%), reasoning quality (15%).
+4. Do NOT penalize for writing style — only penalize for technical incorrectness or missing key concepts.
+
+## Score Bands:
+- 80-100: Technically correct, specific, demonstrates deep understanding, addresses all criteria
+- 60-79: Mostly correct, minor gaps, addresses most criteria
+- 40-59: Partial understanding, addresses some criteria, misses key concepts
+- 20-39: Vague or mostly incorrect, addresses few criteria
+- 1-19: Barely relevant, almost no correct content
+- 0: Completely blank, pure gibberish, or zero relevance to the task
 
 Respond ONLY with valid JSON in this exact format (no markdown, no extra text):
 {
@@ -110,7 +121,7 @@ Respond ONLY with valid JSON in this exact format (no markdown, no extra text):
   "clarity": <integer 0-100>,
   "depth": <integer 0-100>,
   "reasoning": "<2-3 sentence overall assessment referencing specific aspects of their answer>",
-  "strengths": ["<specific strength from their answer>", "<another specific strength>"],
+  "strengths": ["<specific strength from their actual answer>", "<another specific strength>"],
   "weaknesses": ["<specific gap or error in their answer>", "<another weakness>"],
   "improvements": ["<concrete actionable improvement>", "<another improvement>"],
   "edgeCaseHandling": "<assessment of how they handled edge cases or corner scenarios>",
@@ -136,13 +147,18 @@ Respond ONLY with valid JSON in this exact format (no markdown, no extra text):
         const parsed = parseGeminiJson(raw, null);
         if (parsed && typeof (parsed as any).score === 'number') {
           const p = parsed as any;
+          // Apply content floor — never return 0 for a non-empty submission
+          const contentWords = content.trim().split(/\s+/).filter(Boolean).length;
+          const contentFloor = contentWords >= 10 ? Math.max(15, Math.min(40, Math.round(contentWords / 3))) : 0;
+          const rawScore = Math.min(100, Math.max(0, Math.round(p.score)));
+          const finalScore = contentWords >= 10 ? Math.max(contentFloor, rawScore) : rawScore;
           return {
-            score: Math.min(100, Math.max(0, Math.round(p.score))),
+            score: finalScore,
             technicalAccuracy: Math.min(100, Math.max(0, Math.round(p.technicalAccuracy || p.score))),
             clarity: Math.min(100, Math.max(0, Math.round(p.clarity || p.score))),
             depth: Math.min(100, Math.max(0, Math.round(p.depth || p.score))),
             reasoning: p.reasoning || fallback.reasoning,
-            strengths: Array.isArray(p.strengths) ? p.strengths.slice(0, 4) : fallback.strengths,
+            strengths: Array.isArray(p.strengths) && p.strengths.length > 0 ? p.strengths.slice(0, 4) : fallback.strengths,
             weaknesses: Array.isArray(p.weaknesses) ? p.weaknesses.slice(0, 4) : fallback.weaknesses,
             improvements: Array.isArray(p.improvements) ? p.improvements.slice(0, 3) : fallback.improvements,
             edgeCaseHandling: p.edgeCaseHandling || fallback.edgeCaseHandling,
