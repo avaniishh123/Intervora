@@ -2,7 +2,11 @@ import ReactDOM from 'react-dom/client'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import App from './App.tsx'
 import { reportWebVitals, logPerformanceMetrics } from './utils/performance'
+import { startKeepAlive } from './services/keepAlive'
 import './index.css'
+
+// Start pinging /health every 10 min to prevent Render cold starts
+startKeepAlive()
 
 // Create a client with optimized default options
 const queryClient = new QueryClient({
