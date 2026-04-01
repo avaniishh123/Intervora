@@ -184,7 +184,7 @@ All routes are protected using role-based access control via ProtectedRoute.
 ## Some Glimpses of Website
 
 <img width="931" height="451" alt="image" src="https://github.com/user-attachments/assets/c5ffba64-1f35-4da8-ac19-732a94f2cdb9" />
-<img width="680" height="931" alt="Screenshot 2026-03-31 145350" src="https://github.com/user-attachments/assets/a51000a2-bc0a-445e-bc6e-100dc092d898" />
+<img width="1054" height="826" alt="Screenshot 2026-03-31 092148" src="https://github.com/user-attachments/assets/d0df4d02-fa53-48ec-a80b-52be918930c3" />
 <img width="671" height="916" alt="Screenshot 2026-03-31 092202" src="https://github.com/user-attachments/assets/af338813-6fba-4eda-99be-848cd3094a50" />
 <img width="1024" height="639" alt="image" src="https://github.com/user-attachments/assets/e31eed30-7d5a-429b-8965-16d9c2062ff8" />
 
