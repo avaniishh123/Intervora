@@ -1,400 +1,234 @@
-# AI Interview Maker 2.0 - Documentation
+# Intervora – AI-Powered Interview Practice Platform
 
-Welcome to the comprehensive documentation for AI Interview Maker 2.0, an AI-powered interview practice platform built with Google Gemini AI, React, and Node.js.
-
-## 📚 Documentation Index
-
-### For Users
-
-- **[User Guide](./USER_GUIDE.md)** - Complete guide for candidates using the platform
-  - Getting started
-  - Interview modes (Resume-based, JD-based, General)
-  - Understanding results and feedback
-  - Tips for success
-  - Troubleshooting
-
-### For Administrators
-
-- **[Admin Guide](./ADMIN_GUIDE.md)** - Platform management and administration
-  - Dashboard overview
-  - User management
-  - Session analytics
-  - Data export
-  - System monitoring
-  - Security guidelines
-
-### For Developers
-
-- **[Developer Setup Guide](./DEVELOPER_SETUP.md)** - Local development environment setup
-  - Prerequisites and installation
-  - Configuration
-  - Running the application
-  - Development workflow
-  - Testing
-  - Debugging
-
-- **[API Documentation](./API_DOCUMENTATION.md)** - Complete API reference
-  - Authentication APIs
-  - Resume APIs
-  - Gemini AI APIs
-  - Session APIs
-  - Coding Challenge APIs
-  - Leaderboard APIs
-  - Admin APIs
-  - Socket.io Events
-
-### For DevOps
-
-- **[Deployment Guide](../DEPLOYMENT.md)** - Production deployment instructions
-  - Infrastructure requirements
-  - Environment configuration
-  - Database setup
-  - Deployment options (Vercel, AWS, Docker)
-  - CI/CD pipeline
-  - Monitoring and maintenance
-
-## 🚀 Quick Start
-
-### For Users
-1. Read the [User Guide](./USER_GUIDE.md)
-2. Sign up at the platform
-3. Upload your resume or paste a job description
-4. Start your first interview!
-
-### For Developers
-1. Follow the [Developer Setup Guide](./DEVELOPER_SETUP.md)
-2. Clone the repository
-3. Install dependencies
-4. Configure environment variables
-5. Run `npm run dev`
-
-### For Admins
-1. Review the [Admin Guide](./ADMIN_GUIDE.md)
-2. Log in with admin credentials
-3. Access the Admin Dashboard
-4. Monitor platform usage and manage users
-
-## 📖 Additional Resources
-
-### Project Documentation
-
-Located in the root and subdirectories:
-
-**Backend Documentation:**
-- `backend/README.md` - Backend overview
-- `backend/SETUP.md` - Backend setup instructions
-- `backend/AUTH_API.md` - Authentication API details
-- `backend/GEMINI_API.md` - Gemini AI integration
-- `backend/RESUME_API.md` - Resume processing
-- `backend/SESSION_API.md` - Session management
-- `backend/CODING_API.md` - Coding challenges
-- `backend/ADMIN_API.md` - Admin endpoints
-- `backend/SOCKET_API.md` - Real-time communication
-
-**Frontend Documentation:**
-- `frontend/README.md` - Frontend overview
-- `frontend/QUICK_START.md` - Quick start guide
-- `frontend/AUTH_IMPLEMENTATION.md` - Authentication UI
-- `frontend/INTERVIEW_SETUP_IMPLEMENTATION.md` - Interview setup
-- `frontend/AVATAR_3D_GUIDE.md` - 3D avatar implementation
-- `frontend/CODING_CHALLENGE_IMPLEMENTATION.md` - Code editor
-- `frontend/DASHBOARD_IMPLEMENTATION.md` - Dashboard features
-- `frontend/ERROR_HANDLING_GUIDE.md` - Error handling
-
-**Testing Documentation:**
-- `QUICK_TEST_GUIDE.md` - Testing overview
-- `E2E_TESTING_GUIDE.md` - End-to-end testing
-- `INTEGRATION_TESTING.md` - Integration tests
-- `frontend/e2e/README.md` - E2E test details
-
-**Deployment Documentation:**
-- `DEPLOYMENT.md` - Main deployment guide
-- `DEPLOYMENT_CHECKLIST.md` - Pre-deployment checklist
-- `QUICK_DEPLOY.md` - Quick deployment steps
-- `DATABASE_MIGRATION.md` - Database migrations
-
-**Performance Documentation:**
-- `PERFORMANCE_OPTIMIZATION.md` - Performance tips
-- `QUICK_PERFORMANCE_GUIDE.md` - Quick optimizations
-
-**Security Documentation:**
-- `backend/SECURITY_AUDIT.md` - Security audit results
-- `backend/SECURITY_CHECKLIST.md` - Security checklist
-
-## 🏗️ Architecture Overview
-
-### System Architecture
-
-```
-┌─────────────────────────────────────────────────────────────┐
-│                         Client Layer                         │
-│  ┌──────────┐  ┌──────────┐  ┌──────────┐  ┌──────────┐   │
-│  │  React   │  │ Three.js │  │  Monaco  │  │ Chart.js │   │
-│  │ Frontend │  │ 3D Avatar│  │  Editor  │  │  Graphs  │   │
-│  └──────────┘  └──────────┘  └──────────┘  └──────────┘   │
-└─────────────────────────────────────────────────────────────┘
-                            │
-                            ▼
-┌─────────────────────────────────────────────────────────────┐
-│                    Communication Layer                       │
-│              ┌──────────┐      ┌──────────┐                 │
-│              │ REST API │      │Socket.io │                 │
-│              └──────────┘      └──────────┘                 │
-└─────────────────────────────────────────────────────────────┘
-                            │
-                            ▼
-┌─────────────────────────────────────────────────────────────┐
-│                       Server Layer                           │
-│  ┌──────────────┐  ┌──────────────┐  ┌──────────────┐     │
-│  │  Express.js  │  │     JWT      │  │    Route     │     │
-│  │    Server    │  │     Auth     │  │ Controllers  │     │
-│  └──────────────┘  └──────────────┘  └──────────────┘     │
-└─────────────────────────────────────────────────────────────┘
-                            │
-                            ▼
-┌─────────────────────────────────────────────────────────────┐
-│                      Service Layer                           │
-│  ┌──────────┐  ┌──────────┐  ┌──────────┐  ┌──────────┐   │
-│  │  Gemini  │  │  Resume  │  │   Code   │  │ Session  │   │
-│  │    AI    │  │ Analyzer │  │Validator │  │ Manager  │   │
-│  └──────────┘  └──────────┘  └──────────┘  └──────────┘   │
-└─────────────────────────────────────────────────────────────┘
-                            │
-                            ▼
-┌─────────────────────────────────────────────────────────────┐
-│                       Data Layer                             │
-│         ┌──────────────┐         ┌──────────────┐           │
-│         │   MongoDB    │         │     S3       │           │
-│         │   Database   │         │File Storage  │           │
-│         └──────────────┘         └──────────────┘           │
-└─────────────────────────────────────────────────────────────┘
-```
-
-### Key Technologies
-
-**Frontend:**
-- React 18+ with TypeScript
-- React Router for navigation
-- React Three Fiber for 3D avatar
-- Monaco Editor for code challenges
-- Socket.io-client for real-time updates
-- Chart.js for visualizations
-- Zustand for state management
-
-**Backend:**
-- Node.js with Express.js
-- TypeScript for type safety
-- MongoDB with Mongoose ORM
-- Socket.io for WebSockets
-- JWT for authentication
-- Multer for file uploads
-- Google Gemini AI SDK
-
-**Infrastructure:**
-- Vercel for hosting (recommended)
-- MongoDB Atlas for database
-- AWS S3 for file storage
-- GitHub Actions for CI/CD
-
-## 🎯 Key Features
-
-### For Candidates
-
-1. **AI-Powered Question Generation**
-   - Resume-based personalized questions
-   - Job description-aligned questions
-   - Role-specific technical questions
-
-2. **Real-Time Evaluation**
-   - Instant AI feedback on answers
-   - Scoring and improvement suggestions
-   - Follow-up questions for depth
-
-3. **3D Avatar Interviewer**
-   - Realistic interview simulation
-   - Animated expressions and gestures
-   - Voice and video recording
-
-4. **Coding Challenges**
-   - Multiple programming languages
-   - Real-time code validation
-   - AI-powered code review
-
-5. **Comprehensive Reports**
-   - Performance analytics
-   - Sentiment analysis
-   - Actionable recommendations
-
-6. **Mentor Mode**
-   - CAR framework guidance
-   - Structured answer prompts
-   - Learning support
-
-7. **Leaderboard**
-   - Global rankings
-   - Role-specific comparisons
-   - Progress tracking
-
-### For Administrators
-
-1. **Dashboard Analytics**
-   - User statistics
-   - Session metrics
-   - Platform performance
-
-2. **User Management**
-   - View and edit users
-   - Suspend/activate accounts
-   - Access control
-
-3. **Session Analytics**
-   - Detailed session data
-   - Filtering and search
-   - Performance trends
-
-4. **Data Export**
-   - CSV, JSON, Excel formats
-   - Custom date ranges
-   - Scheduled exports
-
-5. **System Monitoring**
-   - Error tracking
-   - Resource usage
-   - API metrics
-
-## 🔒 Security Features
-
-- JWT-based authentication
-- Password hashing with bcrypt
-- Rate limiting on API endpoints
-- Input validation and sanitization
-- CORS protection
-- File upload restrictions
-- Secure environment variables
-- HTTPS enforcement
-- SQL/NoSQL injection prevention
-
-## 📊 Performance Optimizations
-
-- Code splitting and lazy loading
-- Image optimization
-- API response caching
-- Database query optimization
-- CDN for static assets
-- Compression middleware
-- Connection pooling
-- Efficient Gemini API usage
-
-## 🧪 Testing
-
-### Test Coverage
-
-- **Backend**: Unit tests with Jest
-- **Frontend**: Component tests with Vitest
-- **E2E**: Playwright tests
-- **Integration**: API integration tests
-
-### Running Tests
-
-```bash
-# Backend tests
-cd backend
-npm test
-
-# Frontend tests
-cd frontend
-npm test
-
-# E2E tests
-cd frontend
-npm run test:e2e
-```
-
-## 🤝 Contributing
-
-We welcome contributions! Please follow these steps:
-
-1. Read the [Developer Setup Guide](./DEVELOPER_SETUP.md)
-2. Fork the repository
-3. Create a feature branch
-4. Make your changes
-5. Write/update tests
-6. Submit a pull request
-
-See `CONTRIBUTING.md` for detailed guidelines.
-
-## 📝 License
-
-This project is licensed under the MIT License. See `LICENSE` file for details.
-
-## 🆘 Support
-
-### Getting Help
-
-**For Users:**
-- Check the [User Guide](./USER_GUIDE.md)
-- Email: support@aiinterviewmaker.com
-
-**For Developers:**
-- Check the [Developer Setup Guide](./DEVELOPER_SETUP.md)
-- GitHub Issues: Report bugs or request features
-- Discord: Join our developer community
-
-**For Admins:**
-- Check the [Admin Guide](./ADMIN_GUIDE.md)
-- Email: admin-support@aiinterviewmaker.com
-
-### Useful Links
-
-- **Website**: https://aiinterviewmaker.com
-- **GitHub**: https://github.com/your-org/ai-interview-maker-v2
-- **Documentation**: https://docs.aiinterviewmaker.com
-- **API Status**: https://status.aiinterviewmaker.com
-- **Discord**: https://discord.gg/aiinterviewmaker
-
-## 🗺️ Roadmap
-
-### Upcoming Features
-
-- [ ] Multi-language support (i18n)
-- [ ] Mobile app (React Native)
-- [ ] Video interview analysis
-- [ ] Interview scheduling
-- [ ] Peer review system
-- [ ] Custom question banks
-- [ ] Integration APIs
-- [ ] AI interview coach
-
-### Version History
-
-- **v2.0.0** (Current) - Gemini AI integration, enhanced features
-- **v1.0.0** - Initial release with basic interview functionality
-
-## 📞 Contact
-
-**Development Team**: dev@aiinterviewmaker.com
-**Support**: support@aiinterviewmaker.com
-**Security**: security@aiinterviewmaker.com
-**Business**: business@aiinterviewmaker.com
+Intervora is an AI-powered interview practice platform designed to simulate real-world job interviews, evaluate candidate responses, and provide detailed feedback. It is built primarily for candidates preparing for technical roles and leverages Google Gemini AI as its core intelligence engine.
 
 ---
 
-## Document Maintenance
+## Overview
 
-**Last Updated**: January 2024
-**Version**: 2.0
-**Maintained By**: AI Interview Maker Development Team
-
-### Contributing to Documentation
-
-Found an error or want to improve the docs?
-
-1. Edit the relevant markdown file
-2. Submit a pull request
-3. Tag with `documentation` label
-
-All documentation follows Markdown best practices and is reviewed before merging.
+Intervora enables users to experience realistic interview environments through multiple simulation modes, real-time feedback, and performance analytics. It combines AI-driven evaluation, coding environments, and interactive UI elements to enhance interview preparation.
 
 ---
 
-**Happy interviewing! 🎯**
+## Tech Stack
+
+### Frontend
+
+* React 18 + TypeScript
+* Vite
+* Zustand
+* Socket.io-client
+* React Three Fiber (3D avatar)
+* Monaco Editor (code challenges)
+* Chart.js
+
+### Backend
+
+* Node.js + Express + TypeScript
+* MongoDB + Mongoose
+* Socket.io
+* JWT Authentication
+* Google Gemini AI SDK
+* Multer (file uploads)
+
+### Infrastructure
+
+* Vercel (hosting)
+* MongoDB Atlas
+* AWS S3 (file storage)
+* GitHub Actions (CI/CD)
+* Docker support
+
+---
+
+## Interview Modes
+
+* **Resume-Based**
+  Upload a resume and receive personalized interview questions based on experience.
+
+* **JD-Based**
+  Paste a job description to generate role-specific questions.
+
+* **General**
+  Standard interview questions based on selected role categories.
+
+* **Panel Interview**
+  Multi-interviewer simulation environment.
+
+* **Company Interview**
+  Company-specific interview simulations.
+
+* **Simulation Interview**
+  Task-based evaluation (coding, analysis, etc.).
+
+* **Hybrid Interview**
+  Combines real interviewer interaction with AI evaluation, including waiting room and panel system.
+
+* **Contest Mode**
+  Competitive interview challenges with live leaderboard.
+
+---
+
+## Core Features
+
+### Candidate-Facing
+
+* 3D animated avatar interviewer
+* Voice recording with real-time transcription
+* Integrated Monaco Editor (Python, JavaScript, Java, C++)
+* Mentor Mode using CAR (Context-Action-Result) framework
+* Per-question scoring (0–100) with detailed AI feedback
+* Strengths and improvement suggestions
+* Sentiment analysis (confidence, clarity, professionalism)
+* Session recording with video playback
+* Performance charts and analytics
+* Global and role-based leaderboard
+* Session history with past reports
+* Resume analysis with skill extraction and JD matching
+* Interview proctoring overlay
+
+---
+
+### Admin-Facing
+
+* User management (view, edit, suspend/activate)
+* Session analytics with filters
+* Data export (CSV, JSON, Excel)
+* System monitoring and error tracking
+
+---
+
+## Backend Services
+
+* **geminiService** – AI-based question generation and answer evaluation
+* **ResumeAnalyzer** – Resume parsing and skill extraction
+* **CodeExecutor** – Sandboxed code execution
+* **CodeValidator** – Code quality validation
+* **SimulationEvaluator** – Task-based evaluation engine
+* **HybridEvaluationService** – Hybrid interview scoring
+* **LeaderboardService** – Ranking system
+* **PerformanceAnalyzer** – Generates detailed reports
+* **RecordingService** – Handles session recordings
+* **ragService** – Retrieval-Augmented Generation for contextual AI responses
+* **AnalyticsService** – Platform analytics
+* **ExportService** – Data export functionality
+
+---
+
+## Simulation Task Categories
+
+Pre-built task banks are available for:
+
+* Coding
+* Coding QA
+* AI / ML
+* Data Science
+* DevOps
+* Cloud Computing
+* Cybersecurity
+
+---
+
+## Security
+
+* JWT-based authentication
+* bcrypt password hashing
+* Rate limiting
+* CORS configuration
+* Input sanitization
+* File upload restrictions
+* HTTPS enforcement
+
+---
+
+## Routing
+
+The application includes 30+ routes covering:
+
+* Authentication
+* All interview modes
+* Admin panel
+* Hybrid sessions
+* Contest system
+* Reporting and analytics
+
+All routes are protected using role-based access control via ProtectedRoute.
+
+---
+
+## Architecture Diagram Explanation
+
+<img width="1536" height="1024" alt="image" src="https://github.com/user-attachments/assets/572bc3a0-f930-4d5d-b844-a845e65eb71e" />
+
+
+1. **User Interaction Layer**
+   Candidates interact via a React-based frontend with features like 3D avatar, voice input, and coding editor, sending requests through REST APIs and WebSockets.
+
+2. **Frontend Layer**
+   Built with React, TypeScript, and Socket.io, it handles UI rendering, real-time updates, code editor, and performance visualization.
+
+3. **Backend Orchestration Layer**
+   Node.js + Express manages authentication (JWT), routing, and coordinates multiple services like evaluation, resume parsing, and leaderboard management.
+
+4. **AI Processing Layer (Gemini AI)**
+   Backend communicates with Google Gemini AI for generating interview questions, evaluating answers, scoring, and providing feedback.
+
+5. **Data & Storage Layer**
+   MongoDB Atlas stores user data, sessions, and analytics, while AWS S3 handles file storage like resumes and recordings.
+
+6. **Infrastructure & Admin Layer**
+   Vercel hosts the frontend, Docker and GitHub Actions manage deployment, and the admin dashboard provides analytics, monitoring, and user control.
+
+
+
+## Some Glimpses of Website
+
+<img width="931" height="451" alt="image" src="https://github.com/user-attachments/assets/c5ffba64-1f35-4da8-ac19-732a94f2cdb9" />
+<img width="680" height="931" alt="Screenshot 2026-03-31 145350" src="https://github.com/user-attachments/assets/a51000a2-bc0a-445e-bc6e-100dc092d898" />
+<img width="671" height="916" alt="Screenshot 2026-03-31 092202" src="https://github.com/user-attachments/assets/af338813-6fba-4eda-99be-848cd3094a50" />
+<img width="1024" height="639" alt="image" src="https://github.com/user-attachments/assets/e31eed30-7d5a-429b-8965-16d9c2062ff8" />
+
+
+## Project Showcase
+
+Check out the live project and demo:
+
+Website → https://intervora-mpgf.vercel.app
+Demo Video → https://drive.google.com/file/d/1I_0GMYF-jv5pz8HYEMIAITaIR-1uOx1r/view?usp=sharing
+
+
+## Authentication Note
+
+* The platform uses **JWT-based authentication** with access tokens expiring every **15 minutes**.
+* Upon expiration, tokens are refreshed, which may occasionally cause a **slight delay during re-login (~1 minute)** depending on backend cold starts or network conditions.
+
+---
+
+## Future Improvements
+
+* **Hybrid Interview Enhancements**
+
+  * Strengthening real-time human + AI interaction using WebSockets
+  * Improving interviewer panel communication and responsiveness
+
+* **Simulation Interview Upgrades**
+
+  * Integrating fully **real-time Monaco code editor execution**
+  * Enhancing evaluation accuracy for coding and system design tasks
+  * Making simulations more **realistic and industry-aligned**
+
+* **Performance & Scalability**
+
+  * Optimizing backend response times
+  * Reducing authentication latency during token refresh
+  * Improving concurrency handling for large-scale users
+
+* **AI Enhancements**
+
+  * More advanced answer evaluation using context-aware reasoning
+  * Better feedback personalization using RAG pipelines
+
+
+## Summary
+
+Intervora is a comprehensive interview preparation platform that combines AI-driven question generation, real-time evaluation, multi-mode simulations, and competitive elements. It delivers a highly interactive experience through a modern React frontend enhanced with a 3D avatar interviewer and robust backend services.
