@@ -15,7 +15,8 @@
     }
   ],
   "env": {
-    "NODE_ENV": "production"
+    "NODE_ENV": "production",
+    "_DEPLOY_WARNING": "Socket.io requires a persistent server. Use Render/Railway/Fly.io for backend — NOT Vercel serverless."
   },
   "regions": ["iad1"]
 }
