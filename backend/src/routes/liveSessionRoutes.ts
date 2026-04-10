@@ -35,4 +35,12 @@ router.post('/:sessionId/ai-suggest', authMiddleware, (req: Request, res: Respon
   LiveSessionController.aiSuggest(req as any, res, () => {})
 );
 
+// Tokenized invite system
+router.post('/:sessionId/invite', authMiddleware, (req: Request, res: Response) =>
+  LiveSessionController.sendInvite(req as any, res, () => {})
+);
+router.get('/:sessionId/validate-token', (req: Request, res: Response) =>
+  LiveSessionController.validateToken(req as any, res, () => {})
+);
+
 export default router;

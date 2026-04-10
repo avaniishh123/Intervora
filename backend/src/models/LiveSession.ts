@@ -35,6 +35,14 @@ export interface ILiveReport {
   reportId: string;              // unique shareable ID
 }
 
+export interface IInviteToken {
+  token: string;           // crypto-random hex token
+  email: string;           // recipient email
+  name: string;            // recipient display name
+  usedAt?: Date;           // set when token is consumed
+  expiresAt: Date;         // 7 days from creation
+}
+
 export interface ILiveSession extends Document {
   sessionId: string;
   jobRole: string;
@@ -44,12 +52,22 @@ export interface ILiveSession extends Document {
   hostEmail: string;
   status: 'waiting' | 'active' | 'ended' | 'reported';
   participants: ILiveParticipant[];
+  inviteTokens: IInviteToken[];  // tokenized invite links
+  maxParticipants: number;       // default 10
   startedAt?: Date;
   endedAt?: Date;
   scheduledEndAt?: Date;
   report?: ILiveReport;
   createdAt: Date;
 }
+
+const InviteTokenSchema = new Schema<IInviteToken>({
+  token:     { type: String, required: true },
+  email:     { type: String, required: true },
+  name:      { type: String, required: true },
+  usedAt:    { type: Date },
+  expiresAt: { type: Date, required: true },
+}, { _id: false });
 
 const LiveParticipantSchema = new Schema<ILiveParticipant>({
   id: { type: String, required: true },
@@ -99,6 +117,8 @@ const LiveSessionSchema = new Schema<ILiveSession>(
       default: 'waiting',
     },
     participants: [LiveParticipantSchema],
+    inviteTokens: { type: [InviteTokenSchema], default: [] },
+    maxParticipants: { type: Number, default: 10 },
     startedAt: { type: Date },
     endedAt: { type: Date },
     scheduledEndAt: { type: Date },
@@ -111,8 +131,8 @@ const LiveSessionSchema = new Schema<ILiveSession>(
   }
 );
 
-// TTL index: auto-delete sessions older than 48 hours
-LiveSessionSchema.index({ createdAt: 1 }, { expireAfterSeconds: 48 * 60 * 60 });
+// TTL index: auto-delete sessions older than 7 days
+LiveSessionSchema.index({ createdAt: 1 }, { expireAfterSeconds: 7 * 24 * 60 * 60 });
 LiveSessionSchema.index({ 'report.reportId': 1 }, { sparse: true });
 
 const LiveSession = mongoose.model<ILiveSession>('LiveSession', LiveSessionSchema);

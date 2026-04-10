@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
 import api from '../services/api';
+import '../styles/SessionHistory.css'; // reuse delete dialog + shared styles
 
 interface ContestRecord {
   id: string;
@@ -61,6 +62,10 @@ const ContestHistory: React.FC<ContestHistoryProps> = ({ userId }) => {
   const [loading, setLoading] = useState(true);
   const [filterRole, setFilterRole] = useState('');
 
+  // Delete confirmation state
+  const [deleteTargetId, setDeleteTargetId] = useState<string | null>(null);
+  const [isDeleting, setIsDeleting] = useState(false);
+
   const load = useCallback(async () => {
     setLoading(true);
     try {
@@ -95,6 +100,42 @@ const ContestHistory: React.FC<ContestHistoryProps> = ({ userId }) => {
     load().finally(() => setLoading(false));
   }, [load]);
 
+  const handleDeleteClick = (id: string, e: React.MouseEvent) => {
+    e.stopPropagation();
+    setDeleteTargetId(id);
+  };
+
+  const handleCancelDelete = () => setDeleteTargetId(null);
+
+  const handleProceedDelete = async () => {
+    if (!deleteTargetId) return;
+    setIsDeleting(true);
+    try {
+      // Attempt backend delete; silently ignore 404 (local-only records)
+      await api.delete(`/api/sessions/${deleteTargetId}`).catch(() => {});
+
+      // Always remove from local state
+      const updated = records.filter(r => r.id !== deleteTargetId);
+      setRecords(updated);
+
+      // Sync localStorage if this record came from there
+      try {
+        const raw = localStorage.getItem('contest_history');
+        if (raw) {
+          const local: ContestRecord[] = JSON.parse(raw);
+          localStorage.setItem(
+            'contest_history',
+            JSON.stringify(local.filter(r => r.id !== deleteTargetId)),
+          );
+        }
+      } catch { /* ignore storage errors */ }
+
+      setDeleteTargetId(null);
+    } finally {
+      setIsDeleting(false);
+    }
+  };
+
   const uniqueRoles = Array.from(new Set(records.map(r => r.role))).sort();
   const filtered = filterRole ? records.filter(r => r.role === filterRole) : records;
   const sorted = [...filtered].sort(
@@ -115,6 +156,35 @@ const ContestHistory: React.FC<ContestHistoryProps> = ({ userId }) => {
 
   return (
     <div className="contest-history">
+      {/* Delete Confirmation Dialog — identical pattern to SessionHistory */}
+      {deleteTargetId && (
+        <div className="delete-dialog-overlay" role="dialog" aria-modal="true" aria-labelledby="contest-delete-title">
+          <div className="delete-dialog">
+            <div className="delete-dialog-icon">🗑️</div>
+            <h3 id="contest-delete-title" className="delete-dialog-title">Delete Contest Record?</h3>
+            <p className="delete-dialog-message">
+              Are you sure you want to delete this contest record? Please note that once deleted, it cannot be recovered.
+            </p>
+            <div className="delete-dialog-actions">
+              <button
+                className="delete-dialog-cancel"
+                onClick={handleCancelDelete}
+                disabled={isDeleting}
+              >
+                Cancel
+              </button>
+              <button
+                className="delete-dialog-proceed"
+                onClick={handleProceedDelete}
+                disabled={isDeleting}
+              >
+                {isDeleting ? 'Deleting...' : 'Proceed'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
       <div className="contest-history-header">
         <h2>⚡ Contest History</h2>
         <div className="session-filters">
@@ -179,6 +249,20 @@ const ContestHistory: React.FC<ContestHistoryProps> = ({ userId }) => {
                 <span className={`contest-grade-pill ${getGradeClass(rec.overall)}`}>
                   {getGradeLabel(rec.overall)}
                 </span>
+                <button
+                  className="session-delete-btn"
+                  onClick={(e) => handleDeleteClick(rec.id, e)}
+                  title="Delete this contest record"
+                  aria-label="Delete contest record"
+                >
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <polyline points="3 6 5 6 21 6" />
+                    <path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6" />
+                    <path d="M10 11v6M14 11v6" />
+                    <path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2" />
+                  </svg>
+                  Delete
+                </button>
               </div>
             </div>
           ))}

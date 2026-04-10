@@ -1,6 +1,6 @@
 /**
  * LiveWaitingRoomPage — Interviewer waits for candidate to join.
- * Shows shareable link, participant list, and Start button.
+ * Shows shareable link, email invite panel, participant list, and Start button.
  */
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
@@ -33,6 +33,12 @@ export default function LiveWaitingRoomPage() {
   const [error, setError] = useState('');
   const pollRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
+  // Invite panel state
+  const [inviteEmail, setInviteEmail] = useState('');
+  const [inviteName, setInviteName] = useState('');
+  const [inviteSending, setInviteSending] = useState(false);
+  const [inviteMsg, setInviteMsg] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
+
   const joinUrl = `${window.location.origin}/live/join/${sessionId}`;
 
   const fetchSession = useCallback(async () => {
@@ -42,7 +48,7 @@ export default function LiveWaitingRoomPage() {
       const s: Session = res.data.data.session;
       setSession(s);
       if (s.status === 'active') {
-        navigate(`/live/interview/${sessionId}`, {
+        navigate(`/live/room/${sessionId}`, {
           state: { role: 'interviewer', jobRole: s.jobRole, durationMinutes: s.durationMinutes },
         });
       }
@@ -70,7 +76,7 @@ export default function LiveWaitingRoomPage() {
     setError('');
     try {
       await api.post(`/api/live/sessions/${sessionId}/start`);
-      navigate(`/live/interview/${sessionId}`, {
+      navigate(`/live/room/${sessionId}`, {
         state: {
           role: 'interviewer',
           jobRole: session?.jobRole,
@@ -83,8 +89,26 @@ export default function LiveWaitingRoomPage() {
     }
   };
 
+  const handleSendInvite = async () => {
+    if (!inviteEmail.trim() || !inviteName.trim() || !sessionId) return;
+    setInviteSending(true);
+    setInviteMsg(null);
+    try {
+      await api.post(`/api/live/sessions/${sessionId}/invite`, {
+        email: inviteEmail.trim(),
+        name: inviteName.trim(),
+      });
+      setInviteMsg({ type: 'success', text: `Invite sent to ${inviteEmail.trim()}` });
+      setInviteEmail('');
+      setInviteName('');
+    } catch (err: any) {
+      setInviteMsg({ type: 'error', text: err?.response?.data?.message ?? 'Failed to send invite.' });
+    } finally {
+      setInviteSending(false);
+    }
+  };
+
   const activeParticipants = session?.participants.filter(p => !('leftAt' in p && p.leftAt)) ?? [];
-  const candidate = activeParticipants.find(p => p.role === 'candidate');
 
   return (
     <div className="li-page">
@@ -93,7 +117,7 @@ export default function LiveWaitingRoomPage() {
         <div className="li-header">
           <div className="li-badge">👤 Human Interview</div>
           <h1 className="li-title">Waiting Room</h1>
-          <p className="li-subtitle">Share the link below so participants can join before you start.</p>
+          <p className="li-subtitle">Share the link or send email invites so participants can join before you start.</p>
         </div>
 
         <div className="li-link-box">
@@ -105,7 +129,45 @@ export default function LiveWaitingRoomPage() {
             </button>
           </div>
           <p className="li-link-hint">
-            Works with ngrok — the link uses your current base URL automatically.
+            Share this link with participants — it works across devices and networks.
+          </p>
+        </div>
+
+        {/* Email Invite Panel */}
+        <div className="li-invite-panel">
+          <div className="li-invite-panel-header">📧 Invite by Email</div>
+          <div className="li-invite-row">
+            <input
+              className="li-invite-input"
+              placeholder="Participant name"
+              value={inviteName}
+              onChange={e => setInviteName(e.target.value)}
+            />
+          </div>
+          <div className="li-invite-row">
+            <input
+              className="li-invite-input"
+              type="email"
+              placeholder="participant@email.com"
+              value={inviteEmail}
+              onChange={e => setInviteEmail(e.target.value)}
+              onKeyDown={e => e.key === 'Enter' && handleSendInvite()}
+            />
+            <button
+              className="li-invite-send-btn"
+              onClick={handleSendInvite}
+              disabled={inviteSending || !inviteEmail.trim() || !inviteName.trim()}
+            >
+              {inviteSending ? 'Sending…' : 'Send Invite'}
+            </button>
+          </div>
+          {inviteMsg && (
+            <div className={inviteMsg.type === 'success' ? 'li-invite-success' : 'li-invite-error'}>
+              {inviteMsg.type === 'success' ? '✓ ' : '✗ '}{inviteMsg.text}
+            </div>
+          )}
+          <p className="li-invite-hint">
+            Each invite generates a unique secure link. The participant receives a personalized email with a one-click join button.
           </p>
         </div>
 
@@ -117,12 +179,12 @@ export default function LiveWaitingRoomPage() {
         <div className="li-participants">
           <div className="li-participants-header">
             Participants
-            <span className="li-participants-count">{activeParticipants.length} / 2</span>
+            <span className="li-participants-count">{activeParticipants.length}</span>
           </div>
           {activeParticipants.length === 0 ? (
             <div className="li-empty">
               <div className="li-empty-icon">⏳</div>
-              <div>Waiting for candidate to join…</div>
+              <div>Waiting for participants to join…</div>
             </div>
           ) : (
             <ul className="li-participant-list">

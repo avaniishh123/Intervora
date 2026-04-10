@@ -1,26 +1,41 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import RoleCategoryToggle, { RoleCategory } from '../components/RoleCategoryToggle';
+import { NON_TECHNICAL_ROLES } from '../data/nonTechnicalRoles';
 import '../styles/InterviewSetup.css';
 
 type InterviewMode = 'resume-based' | 'jd-based' | 'general' | 'simulation' | 'panel' | 'company';
 
+const TECHNICAL_ROLES = [
+  'Software Engineer',
+  'AI/ML Engineer',
+  'Cloud Engineer',
+  'Cybersecurity Engineer',
+  'Data Scientist',
+  'DevOps Engineer',
+  'Full Stack Developer',
+  'Backend Developer',
+  'Frontend Developer',
+];
+
 const InterviewSetupPage = () => {
   const navigate = useNavigate();
+  const [roleCategory, setRoleCategory] = useState<RoleCategory>('technical');
   const [selectedRole, setSelectedRole] = useState<string>('');
   const [selectedMode, setSelectedMode] = useState<InterviewMode | ''>('');
   const [selectedDuration, setSelectedDuration] = useState<number>(15); // Default 15 minutes
 
-  const jobRoles = [
-    'Software Engineer',
-    'AI/ML Engineer',
-    'Cloud Engineer',
-    'Cybersecurity Engineer',
-    'Data Scientist',
-    'DevOps Engineer',
-    'Full Stack Developer',
-    'Backend Developer',
-    'Frontend Developer',
-  ];
+  // Switch category → reset role & mode so stale selections don't carry over
+  const handleCategoryChange = (cat: RoleCategory) => {
+    setRoleCategory(cat);
+    setSelectedRole('');
+    setSelectedMode('');
+  };
+
+  const jobRoles =
+    roleCategory === 'technical'
+      ? TECHNICAL_ROLES
+      : NON_TECHNICAL_ROLES.map(r => r.label);
 
   const interviewModes = [
     {
@@ -38,19 +53,25 @@ const InterviewSetupPage = () => {
     {
       value: 'general' as InterviewMode,
       label: 'General Interview',
-      description: 'Practice with general interview questions for your selected role',
+      description: roleCategory === 'technical'
+        ? 'Practice with general interview questions for your selected role'
+        : 'Practice with behavioural, situational, and role-specific questions',
       icon: '🎯',
     },
     {
       value: 'simulation' as InterviewMode,
       label: 'Simulation-Based Interview',
-      description: 'Real-world role-specific tasks: coding challenges, incident analysis, architecture reviews, and more',
-      icon: '🧪',
+      description: roleCategory === 'technical'
+        ? 'Real-world role-specific tasks: coding challenges, incident analysis, architecture reviews, and more'
+        : 'Real-world case studies, scenario analysis, and role-specific challenges',
+      icon: roleCategory === 'technical' ? '🧪' : '📋',
     },
     {
       value: 'panel' as InterviewMode,
       label: 'Mock Panel Interview',
-      description: 'Face a panel of AI interviewers — Technical Lead, Hiring Manager & HR — with cross-questioning and pressure-driven evaluation',
+      description: roleCategory === 'technical'
+        ? 'Face a panel of AI interviewers — Technical Lead, Hiring Manager & HR — with cross-questioning and pressure-driven evaluation'
+        : 'Face a panel of AI interviewers — Hiring Manager, Senior Leader & HR — with cross-questioning and pressure-driven evaluation',
       icon: '👥',
     },
     {
@@ -60,6 +81,15 @@ const InterviewSetupPage = () => {
       icon: '🏢',
     },
   ];
+
+  // For non-technical roles, filter modes to only those the selected role supports
+  const selectedRoleMeta = roleCategory === 'non-technical'
+    ? NON_TECHNICAL_ROLES.find(r => r.label === selectedRole)
+    : null;
+
+  const visibleModes = selectedRoleMeta
+    ? interviewModes.filter(m => selectedRoleMeta.supportedModes.includes(m.value))
+    : interviewModes;
 
   const handleContinue = () => {
     if (!selectedRole || !selectedMode || !selectedDuration) {
@@ -100,10 +130,23 @@ const InterviewSetupPage = () => {
           <div className="setup-section">
             <h2>1. Select Job Role</h2>
             <p className="section-description">Choose the role you want to practice for</p>
+
+            {/* Technical / Non-Technical toggle */}
+            <div className="role-category-row">
+              <RoleCategoryToggle value={roleCategory} onChange={handleCategoryChange} />
+              {selectedRoleMeta && (
+                <div className="role-focus-areas">
+                  {selectedRoleMeta.focusAreas.map(area => (
+                    <span key={area} className="focus-chip">{area}</span>
+                  ))}
+                </div>
+              )}
+            </div>
+
             <div className="form-group">
               <select
                 value={selectedRole}
-                onChange={(e) => setSelectedRole(e.target.value)}
+                onChange={(e) => { setSelectedRole(e.target.value); setSelectedMode(''); }}
                 className="role-select"
               >
                 <option value="">-- Select a role --</option>
@@ -121,11 +164,12 @@ const InterviewSetupPage = () => {
             <h2>2. Choose Interview Mode</h2>
             <p className="section-description">Select how you want to prepare</p>
             <div className="mode-selection">
-              {interviewModes.map((mode) => (
+              {visibleModes.map((mode) => (
                 <div
                   key={mode.value}
                   className={`mode-card ${selectedMode === mode.value ? 'selected' : ''}`}
                   data-mode={mode.value}
+                  data-category={roleCategory}
                   onClick={() => setSelectedMode(mode.value)}
                 >
                   <div className="mode-icon">{mode.icon}</div>

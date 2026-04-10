@@ -311,3 +311,42 @@
   border-color: #8b5cf6;
   box-shadow: 0 8px 24px rgba(139, 92, 246, 0.2);
 }
+
+/* ── Role category toggle row ────────────────────────────────────────────── */
+.role-category-row {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-bottom: 10px;
+}
+
+/* ── Focus area chips ────────────────────────────────────────────────────── */
+.role-focus-areas {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.focus-chip {
+  display: inline-block;
+  padding: 3px 10px;
+  background: linear-gradient(135deg, rgba(124, 58, 237, 0.08), rgba(102, 126, 234, 0.08));
+  border: 1px solid rgba(124, 58, 237, 0.2);
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 500;
+  color: #7c3aed;
+  white-space: nowrap;
+  animation: chipFadeIn 0.2s ease-out;
+}
+
+@keyframes chipFadeIn {
+  from { opacity: 0; transform: scale(0.9); }
+  to   { opacity: 1; transform: scale(1); }
+}
+
+/* ── Non-technical simulation card accent ────────────────────────────────── */
+.mode-card[data-mode="simulation"][data-category="non-technical"]::after {
+  content: none; /* remove the NEW badge for non-tech simulation */
+}

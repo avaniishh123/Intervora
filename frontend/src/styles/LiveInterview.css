@@ -726,3 +726,423 @@
   font-size: 0.95rem;
   margin: 0;
 }
+
+/* ── Invite Panel (Waiting Room) ─────────────────────────────────────────── */
+.li-invite-panel {
+  background: rgba(255,255,255,0.04);
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 1rem;
+  padding: 1.25rem;
+  margin-bottom: 1.5rem;
+}
+.li-invite-panel-header {
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: rgba(255,255,255,0.5);
+  margin-bottom: 1rem;
+}
+.li-invite-row {
+  display: flex;
+  gap: 0.5rem;
+  margin-bottom: 0.5rem;
+}
+.li-invite-input {
+  flex: 1;
+  background: rgba(255,255,255,0.08);
+  border: 1px solid rgba(255,255,255,0.15);
+  border-radius: 0.5rem;
+  color: #fff;
+  padding: 0.55rem 0.75rem;
+  font-size: 0.85rem;
+  outline: none;
+  min-width: 0;
+  transition: border-color 0.2s;
+}
+.li-invite-input:focus { border-color: #a78bfa; }
+.li-invite-input::placeholder { color: rgba(255,255,255,0.3); }
+.li-invite-send-btn {
+  background: #7c3aed;
+  border: none;
+  border-radius: 0.5rem;
+  color: #fff;
+  font-size: 0.85rem;
+  font-weight: 600;
+  padding: 0.55rem 1rem;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: background 0.2s, opacity 0.2s;
+}
+.li-invite-send-btn:hover:not(:disabled) { background: #6d28d9; }
+.li-invite-send-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+.li-invite-success {
+  font-size: 0.8rem;
+  color: #6ee7b7;
+  margin-top: 0.4rem;
+}
+.li-invite-error {
+  font-size: 0.8rem;
+  color: #fca5a5;
+  margin-top: 0.4rem;
+}
+.li-invite-hint {
+  font-size: 0.75rem;
+  color: rgba(255,255,255,0.35);
+  margin-top: 0.5rem;
+}
+
+/* ── Video Room (HumanInterviewRoomPage) ─────────────────────────────────── */
+.hir-page {
+  min-height: 100vh;
+  background: #0d0d0d;
+  display: flex;
+  flex-direction: column;
+  color: #fff;
+  font-family: inherit;
+}
+
+/* Top bar */
+.hir-topbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.6rem 1.25rem;
+  background: #1a1a1a;
+  border-bottom: 1px solid #2a2a2a;
+  flex-shrink: 0;
+  gap: 1rem;
+}
+.hir-topbar-left { display: flex; align-items: center; gap: 0.75rem; }
+.hir-topbar-center { display: flex; align-items: center; gap: 0.5rem; }
+.hir-topbar-right { display: flex; align-items: center; gap: 0.5rem; }
+.hir-logo { font-weight: 700; font-size: 0.95rem; color: #a78bfa; }
+.hir-session-info { font-size: 0.8rem; color: rgba(255,255,255,0.5); }
+.hir-timer {
+  background: rgba(239,68,68,0.15);
+  border: 1px solid rgba(239,68,68,0.3);
+  color: #fca5a5;
+  border-radius: 0.5rem;
+  padding: 0.3rem 0.75rem;
+  font-size: 0.85rem;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+.hir-timer--warning { background: rgba(239,68,68,0.3); border-color: rgba(239,68,68,0.6); }
+
+/* Video grid */
+.hir-body {
+  flex: 1;
+  display: flex;
+  overflow: hidden;
+}
+.hir-video-area {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  padding: 1rem;
+  gap: 1rem;
+  overflow: hidden;
+}
+.hir-video-grid {
+  flex: 1;
+  display: grid;
+  gap: 0.75rem;
+  align-content: start;
+}
+.hir-video-grid--1 { grid-template-columns: 1fr; }
+.hir-video-grid--2 { grid-template-columns: repeat(2, 1fr); }
+.hir-video-grid--3,
+.hir-video-grid--4 { grid-template-columns: repeat(2, 1fr); }
+.hir-video-grid--5,
+.hir-video-grid--6 { grid-template-columns: repeat(3, 1fr); }
+
+.hir-video-tile {
+  position: relative;
+  background: #1e1e1e;
+  border-radius: 0.75rem;
+  overflow: hidden;
+  aspect-ratio: 16/9;
+  border: 2px solid transparent;
+  transition: border-color 0.2s;
+}
+.hir-video-tile--speaking { border-color: #22c55e; }
+.hir-video-tile--self { border-color: #7c3aed; }
+
+.hir-video-tile video {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+.hir-video-tile-overlay {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  padding: 0.5rem 0.75rem;
+  background: linear-gradient(transparent, rgba(0,0,0,0.7));
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.hir-tile-name {
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: #fff;
+  text-shadow: 0 1px 3px rgba(0,0,0,0.5);
+}
+.hir-tile-muted {
+  font-size: 0.75rem;
+  background: rgba(239,68,68,0.8);
+  border-radius: 999px;
+  padding: 0.1rem 0.4rem;
+  color: #fff;
+}
+.hir-video-avatar {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, #312e81, #4c1d95);
+}
+.hir-video-avatar-letter {
+  width: 4rem; height: 4rem;
+  background: linear-gradient(135deg, #7c3aed, #a855f7);
+  border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 1.75rem; font-weight: 700;
+}
+
+/* Controls bar */
+.hir-controls {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.75rem;
+  padding: 0.75rem 0;
+  flex-shrink: 0;
+}
+.hir-ctrl-btn {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.25rem;
+  background: #2a2a2a;
+  border: 1px solid #3a3a3a;
+  border-radius: 0.75rem;
+  color: #fff;
+  padding: 0.6rem 1rem;
+  cursor: pointer;
+  font-size: 0.7rem;
+  font-weight: 600;
+  min-width: 4rem;
+  transition: background 0.2s, border-color 0.2s;
+}
+.hir-ctrl-btn:hover { background: #333; }
+.hir-ctrl-btn--active { background: rgba(239,68,68,0.2); border-color: rgba(239,68,68,0.4); color: #fca5a5; }
+.hir-ctrl-btn--danger { background: rgba(239,68,68,0.2); border-color: rgba(239,68,68,0.4); color: #fca5a5; }
+.hir-ctrl-btn--danger:hover { background: rgba(239,68,68,0.35); }
+.hir-ctrl-icon { font-size: 1.25rem; line-height: 1; }
+
+/* Side panel (participants + chat) */
+.hir-side-panel {
+  width: 300px;
+  flex-shrink: 0;
+  background: #141414;
+  border-left: 1px solid #2a2a2a;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+.hir-side-tabs {
+  display: flex;
+  border-bottom: 1px solid #2a2a2a;
+  flex-shrink: 0;
+}
+.hir-side-tab {
+  flex: 1;
+  background: none;
+  border: none;
+  color: rgba(255,255,255,0.5);
+  padding: 0.75rem;
+  font-size: 0.8rem;
+  font-weight: 600;
+  cursor: pointer;
+  border-bottom: 2px solid transparent;
+  transition: color 0.2s, border-color 0.2s;
+}
+.hir-side-tab--active { color: #a78bfa; border-bottom-color: #a78bfa; }
+.hir-side-content { flex: 1; overflow-y: auto; padding: 0.75rem; }
+
+/* Participant list in side panel */
+.hir-participant-item {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 0.5rem 0.25rem;
+  border-bottom: 1px solid #1e1e1e;
+}
+.hir-participant-avatar {
+  width: 2rem; height: 2rem;
+  background: linear-gradient(135deg, #7c3aed, #a855f7);
+  border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 0.85rem; font-weight: 700;
+  flex-shrink: 0;
+}
+.hir-participant-info { flex: 1; min-width: 0; }
+.hir-participant-name { font-size: 0.85rem; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.hir-participant-role { font-size: 0.7rem; color: rgba(255,255,255,0.4); }
+.hir-participant-muted { font-size: 0.75rem; color: #fca5a5; }
+
+/* Chat in side panel */
+.hir-chat-messages {
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+  padding-bottom: 0.5rem;
+}
+.hir-chat-msg { }
+.hir-chat-msg-meta { font-size: 0.7rem; color: rgba(255,255,255,0.4); margin-bottom: 0.2rem; }
+.hir-chat-msg-text {
+  background: rgba(255,255,255,0.07);
+  border-radius: 0.5rem;
+  padding: 0.5rem 0.75rem;
+  font-size: 0.85rem;
+  line-height: 1.4;
+  word-break: break-word;
+}
+.hir-chat-msg--self .hir-chat-msg-text { background: rgba(124,58,237,0.2); }
+.hir-chat-input-area {
+  padding: 0.5rem;
+  border-top: 1px solid #2a2a2a;
+  display: flex;
+  gap: 0.4rem;
+  flex-shrink: 0;
+}
+.hir-chat-input {
+  flex: 1;
+  background: rgba(255,255,255,0.07);
+  border: 1px solid #2a2a2a;
+  border-radius: 0.5rem;
+  color: #fff;
+  padding: 0.5rem 0.6rem;
+  font-size: 0.85rem;
+  outline: none;
+  font-family: inherit;
+  resize: none;
+}
+.hir-chat-input:focus { border-color: #a78bfa; }
+.hir-chat-send {
+  background: #7c3aed;
+  border: none;
+  border-radius: 0.5rem;
+  color: #fff;
+  font-size: 0.8rem;
+  font-weight: 600;
+  padding: 0 0.75rem;
+  cursor: pointer;
+  align-self: flex-end;
+  height: 2rem;
+}
+.hir-chat-send:hover { background: #6d28d9; }
+
+/* Ended overlay */
+.hir-ended-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.85);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 100;
+}
+.hir-ended-card {
+  background: #1a1a1a;
+  border: 1px solid #2a2a2a;
+  border-radius: 1rem;
+  padding: 2.5rem;
+  text-align: center;
+  max-width: 380px;
+}
+.hir-ended-icon { font-size: 3rem; margin-bottom: 1rem; }
+.hir-ended-title { font-size: 1.4rem; font-weight: 700; margin: 0 0 0.5rem; }
+.hir-ended-sub { color: rgba(255,255,255,0.5); font-size: 0.9rem; margin: 0 0 1.5rem; }
+.hir-ended-btn {
+  background: #7c3aed;
+  border: none;
+  border-radius: 0.75rem;
+  color: #fff;
+  font-size: 0.95rem;
+  font-weight: 600;
+  padding: 0.75rem 2rem;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+.hir-ended-btn:hover { background: #6d28d9; }
+
+/* Permission gate */
+.hir-perm-page {
+  min-height: 100vh;
+  background: linear-gradient(135deg, #1e1b4b, #312e81, #4c1d95);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+}
+.hir-perm-card {
+  background: rgba(255,255,255,0.07);
+  backdrop-filter: blur(20px);
+  border: 1px solid rgba(255,255,255,0.12);
+  border-radius: 1.5rem;
+  padding: 2.5rem;
+  max-width: 440px;
+  width: 100%;
+  text-align: center;
+  color: #fff;
+}
+.hir-perm-icon { font-size: 3rem; margin-bottom: 1rem; }
+.hir-perm-title { font-size: 1.5rem; font-weight: 700; margin: 0 0 0.75rem; }
+.hir-perm-desc { color: rgba(255,255,255,0.65); font-size: 0.9rem; line-height: 1.6; margin: 0 0 1.5rem; }
+.hir-perm-list {
+  list-style: none;
+  padding: 0;
+  margin: 0 0 1.5rem;
+  text-align: left;
+  background: rgba(255,255,255,0.05);
+  border-radius: 0.75rem;
+  padding: 1rem 1.25rem;
+}
+.hir-perm-list li { font-size: 0.85rem; color: rgba(255,255,255,0.75); padding: 0.3rem 0; }
+.hir-perm-btn {
+  width: 100%;
+  background: linear-gradient(135deg, #7c3aed, #a855f7);
+  border: none;
+  border-radius: 0.875rem;
+  color: #fff;
+  font-size: 1rem;
+  font-weight: 600;
+  padding: 0.9rem;
+  cursor: pointer;
+  transition: opacity 0.2s;
+}
+.hir-perm-btn:hover:not(:disabled) { opacity: 0.9; }
+.hir-perm-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+.hir-perm-error {
+  background: rgba(239,68,68,0.15);
+  border: 1px solid rgba(239,68,68,0.3);
+  border-radius: 0.5rem;
+  color: #fca5a5;
+  padding: 0.75rem;
+  font-size: 0.85rem;
+  margin-top: 1rem;
+}
+
+@media (max-width: 768px) {
+  .hir-side-panel { display: none; }
+  .hir-video-grid--2,
+  .hir-video-grid--3,
+  .hir-video-grid--4 { grid-template-columns: 1fr; }
+}

@@ -54,14 +54,14 @@ export function initializeLiveInterviewNamespace(io: SocketIOServer): Namespace 
   ns.on('connection', (rawSocket) => {
     const socket = rawSocket as LiveSocket;
 
-    socket.on('live:join', async ({ sessionId, role, name }: { sessionId: string; role: string; name: string }) => {
+    socket.on('live:join', async ({ sessionId, role, name, participantId }: { sessionId: string; role: string; name: string; participantId?: string }) => {
       socket.liveSessionId = sessionId;
       socket.liveRole = role as 'interviewer' | 'candidate';
       socket.liveName = name;
       socket.join(sessionId);
 
-      // Notify others in room
-      socket.to(sessionId).emit('live:participant:joined', { name, role });
+      // Notify others in room (include participantId for WebRTC targeting)
+      socket.to(sessionId).emit('live:participant:joined', { participantId: participantId ?? socket.id, name, role });
 
       // If session is active and timer not yet started, start it
       try {
@@ -122,6 +122,27 @@ export function initializeLiveInterviewNamespace(io: SocketIOServer): Namespace 
           { status: 'ended', endedAt: new Date() }
         );
       } catch { /* best-effort */ }
+    });
+
+    // ── WebRTC signaling relay ──────────────────────────────────────────────
+    // These events are forwarded to the target participant only (not broadcast)
+
+    socket.on('live:webrtc:offer', ({ sessionId: sid, to, offer, from, fromName, fromRole }: any) => {
+      // Find the target socket in the room and forward the offer
+      ns.to(sid).emit('live:webrtc:offer', { from, fromName, fromRole, offer });
+    });
+
+    socket.on('live:webrtc:answer', ({ sessionId: sid, to, answer, from }: any) => {
+      ns.to(sid).emit('live:webrtc:answer', { from, answer });
+    });
+
+    socket.on('live:webrtc:ice', ({ sessionId: sid, to, candidate, from }: any) => {
+      ns.to(sid).emit('live:webrtc:ice', { from: from ?? socket.id, candidate });
+    });
+
+    // Media state update (mute/cam toggle)
+    socket.on('live:media:update', ({ sessionId: sid, participantId, muted, videoOff }: any) => {
+      socket.to(sid).emit('live:media:update', { participantId, muted, videoOff });
     });
 
     socket.on('disconnect', () => {

@@ -10,6 +10,7 @@ import MentorModeToggle from '../components/MentorModeToggle';
 import ResponseModeModal from '../components/ResponseModeModal';
 import InterviewProctoringOverlay from '../components/InterviewProctoringOverlay';
 import { useInterviewProctor } from '../hooks/useInterviewProctor';
+import { useProctoringNotifications } from '../hooks/useProctoringNotifications';
 import { useInterviewMedia } from '../hooks/useInterviewMedia';
 import socketService, {
   QuestionNewData,
@@ -122,6 +123,13 @@ export default function InterviewPage() {
         handleAutoEndSession();
       }, 3000);
     },
+  });
+
+  // ── Browser notification layer (additive — does not touch modal logic) ─────
+  useProctoringNotifications({
+    warningCount: proctoringState.warningCount,
+    maxWarnings,
+    enabled: proctoringState.phase !== 'requesting-screen-share' && proctoringState.phase !== 'requesting-fullscreen',
   });
 
   // Ensure we have a valid token before doing anything else

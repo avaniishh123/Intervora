@@ -536,7 +536,9 @@
 
 .contest-card-footer {
   display: flex;
-  justify-content: flex-end;
+  justify-content: space-between;
+  align-items: center;
+  gap: 10px;
 }
 
 .contest-grade-pill {

@@ -4,11 +4,13 @@
  */
 import { Response, NextFunction } from 'express';
 import { v4 as uuidv4 } from 'uuid';
+import crypto from 'crypto';
 import { AuthRequest } from './AuthController';
 import LiveSession, { ILiveEvalCriteria } from '../models/LiveSession';
 import { geminiService } from '../services/geminiService';
+import { sendInterviewInvite } from '../services/emailService';
 
-const MAX_PARTICIPANTS = 2; // 1 interviewer + 1 candidate
+const MAX_PARTICIPANTS = 10; // up to 10 participants per session
 
 class LiveSessionController {
   // ── POST /api/live/sessions ──────────────────────────────────────────────
@@ -81,29 +83,12 @@ class LiveSessionController {
         return;
       }
 
-      // Enforce max 2 participants
+      // Enforce max participants
       const activeParticipants = session.participants.filter(p => !p.leftAt);
-      if (activeParticipants.length >= MAX_PARTICIPANTS) {
-        res.status(409).json({ status: 'error', message: 'Session is full (max 2 participants)' });
+      const cap = session.maxParticipants ?? MAX_PARTICIPANTS;
+      if (activeParticipants.length >= cap) {
+        res.status(409).json({ status: 'error', message: `Session is full (max ${cap} participants)` });
         return;
-      }
-
-      // Only one interviewer allowed
-      if (role === 'interviewer') {
-        const existingInterviewer = activeParticipants.find(p => p.role === 'interviewer');
-        if (existingInterviewer) {
-          res.status(409).json({ status: 'error', message: 'An interviewer has already joined this session' });
-          return;
-        }
-      }
-
-      // Only one candidate allowed
-      if (role === 'candidate') {
-        const existingCandidate = activeParticipants.find(p => p.role === 'candidate');
-        if (existingCandidate) {
-          res.status(409).json({ status: 'error', message: 'A candidate has already joined this session' });
-          return;
-        }
       }
 
       const participant = {
@@ -288,6 +273,102 @@ class LiveSessionController {
         .sort({ createdAt: -1 })
         .limit(20);
       res.json({ status: 'success', data: { sessions } });
+    } catch (err) { next(err); }
+  }
+
+  // ── POST /api/live/sessions/:sessionId/invite ────────────────────────────
+  // Authenticated — host sends a tokenized invite email to a participant.
+  async sendInvite(req: AuthRequest, res: Response, next: NextFunction): Promise<void> {
+    try {
+      const { email, name } = req.body;
+      if (!email?.trim() || !name?.trim()) {
+        res.status(400).json({ status: 'error', message: 'email and name are required' });
+        return;
+      }
+
+      const session = await LiveSession.findOne({ sessionId: req.params.sessionId });
+      if (!session) {
+        res.status(404).json({ status: 'error', message: 'Session not found' });
+        return;
+      }
+      if (session.hostId !== req.user!.userId) {
+        res.status(403).json({ status: 'error', message: 'Only the host can send invites' });
+        return;
+      }
+      if (session.status === 'ended' || session.status === 'reported') {
+        res.status(409).json({ status: 'error', message: 'Cannot invite to an ended session' });
+        return;
+      }
+
+      // Generate a cryptographically secure token
+      const token = crypto.randomBytes(32).toString('hex');
+      const expiresAt = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000); // 7 days
+
+      session.inviteTokens.push({ token, email: email.trim(), name: name.trim(), expiresAt });
+      await session.save();
+
+      const frontendBase = process.env.FRONTEND_URL || process.env.CORS_ORIGIN || 'http://localhost:5173';
+      const joinUrl = `${frontendBase}/live/join/${session.sessionId}?token=${token}`;
+
+      await sendInterviewInvite({
+        to: email.trim(),
+        candidateName: name.trim(),
+        hostName: session.hostName,
+        jobRole: session.jobRole,
+        joinUrl,
+        durationMinutes: session.durationMinutes,
+        expiresAt,
+      });
+
+      res.json({ status: 'success', data: { message: 'Invite sent', joinUrl, token } });
+    } catch (err) { next(err); }
+  }
+
+  // ── GET /api/live/sessions/:sessionId/validate-token ────────────────────
+  // Public — validates an invite token before allowing join.
+  async validateToken(req: AuthRequest, res: Response, next: NextFunction): Promise<void> {
+    try {
+      const { token } = req.query as { token?: string };
+      if (!token) {
+        res.status(400).json({ status: 'error', message: 'token query param is required' });
+        return;
+      }
+
+      const session = await LiveSession.findOne({ sessionId: req.params.sessionId });
+      if (!session) {
+        res.status(404).json({ status: 'error', message: 'Session not found or has expired' });
+        return;
+      }
+      if (session.status === 'ended' || session.status === 'reported') {
+        res.status(409).json({ status: 'error', message: 'Session has already ended' });
+        return;
+      }
+
+      const invite = session.inviteTokens.find(t => t.token === token);
+      if (!invite) {
+        res.status(401).json({ status: 'error', message: 'Invalid invite token' });
+        return;
+      }
+      if (invite.expiresAt < new Date()) {
+        res.status(401).json({ status: 'error', message: 'Invite link has expired' });
+        return;
+      }
+
+      res.json({
+        status: 'success',
+        data: {
+          valid: true,
+          name: invite.name,
+          email: invite.email,
+          session: {
+            sessionId: session.sessionId,
+            jobRole: session.jobRole,
+            durationMinutes: session.durationMinutes,
+            hostName: session.hostName,
+            status: session.status,
+          },
+        },
+      });
     } catch (err) { next(err); }
   }
 }

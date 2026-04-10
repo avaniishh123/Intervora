@@ -1,10 +1,10 @@
 /**
  * LiveJoinPage — Public page for candidates to join a Human Interview session.
- * No authentication required. Candidate enters name, selects role (candidate),
- * then waits for interviewer to start.
+ * Supports both direct join (no token) and tokenized invite links.
+ * Token validation happens before name entry to prevent "Session Unavailable".
  */
 import { useState, useEffect, useRef, useCallback } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
+import { useParams, useNavigate, useSearchParams } from 'react-router-dom';
 import '../styles/LiveInterview.css';
 
 const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:5000';
@@ -30,6 +30,8 @@ interface Session {
 
 export default function LiveJoinPage() {
   const { sessionId } = useParams<{ sessionId: string }>();
+  const [searchParams] = useSearchParams();
+  const token = searchParams.get('token');
   const navigate = useNavigate();
 
   const [session, setSession] = useState<Session | null>(null);
@@ -46,25 +48,42 @@ export default function LiveJoinPage() {
   useEffect(() => { pidRef.current = participantId; }, [participantId]);
   useEffect(() => { nameRef.current = name; }, [name]);
 
-  // Initial session validation
+  // Initial session validation — use token endpoint when token present
   useEffect(() => {
     if (!sessionId) return;
-    apiFetch(`/api/live/sessions/${sessionId}`)
-      .then(data => {
-        const s: Session = data.data.session;
-        if (s.status === 'ended' || s.status === 'reported') {
-          setLoadError('This session has already ended.');
-          setStep('error');
-          return;
+
+    const validate = async () => {
+      try {
+        if (token) {
+          // Token-based validation: verifies session + token authenticity
+          const data = await apiFetch(
+            `/api/live/sessions/${sessionId}/validate-token?token=${encodeURIComponent(token)}`
+          );
+          const { session: s, name: invitedName } = data.data;
+          setSession(s);
+          // Pre-fill name from invite
+          if (invitedName) setName(invitedName);
+          setStep('enter-name');
+        } else {
+          // Direct link — standard session lookup
+          const data = await apiFetch(`/api/live/sessions/${sessionId}`);
+          const s: Session = data.data.session;
+          if (s.status === 'ended' || s.status === 'reported') {
+            setLoadError('This session has already ended.');
+            setStep('error');
+            return;
+          }
+          setSession(s);
+          setStep('enter-name');
         }
-        setSession(s);
-        setStep('enter-name');
-      })
-      .catch(() => {
-        setLoadError('Session not found or has expired.');
+      } catch (err: any) {
+        setLoadError(err.message ?? 'Session not found or has expired.');
         setStep('error');
-      });
-  }, [sessionId]);
+      }
+    };
+
+    validate();
+  }, [sessionId, token]);
 
   const pollSession = useCallback(async () => {
     if (!sessionId) return;
@@ -74,7 +93,7 @@ export default function LiveJoinPage() {
       setSession(s);
       if (s.status === 'active') {
         if (pollRef.current) clearInterval(pollRef.current);
-        navigate(`/live/interview/${sessionId}`, {
+        navigate(`/live/room/${sessionId}`, {
           state: {
             role: 'candidate',
             participantId: pidRef.current,
