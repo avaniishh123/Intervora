@@ -18,7 +18,7 @@ export default function Timer({
 }: TimerProps) {
   const [timeRemaining, setTimeRemaining] = useState(duration);
   const [isPaused, setIsPaused] = useState(!isActive);
-  const intervalRef = useRef<number | null>(null);
+  const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const hasCalledTimeUpRef = useRef(false);
 
   // Format time as MM:SS
