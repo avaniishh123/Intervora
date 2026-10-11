@@ -51,26 +51,43 @@ export const useAuthStore = create<AuthState>((set) => ({
   },
 
   signup: async (email: string, password: string, name: string, role: 'candidate' | 'admin') => {
-    try {
-      const response = await api.post('/auth/signup', {
-        email,
-        password,
-        name,
-        role,
-      });
+    // Retry up to 2 times with increasing timeout to handle cold-start backend delays
+    const maxAttempts = 2;
+    let lastError: any;
+    for (let attempt = 1; attempt <= maxAttempts; attempt++) {
+      try {
+        const response = await api.post('/auth/signup', {
+          email,
+          password,
+          name,
+          role,
+        }, {
+          timeout: attempt === 1 ? 15000 : 60000, // 15s first try, 60s on retry (cold start)
+        });
 
-      const { user, accessToken, refreshToken } = response.data.data || response.data;
+        const { user, accessToken, refreshToken } = response.data.data || response.data;
 
-      // Store tokens in localStorage
-      localStorage.setItem('accessToken', accessToken);
-      localStorage.setItem('refreshToken', refreshToken);
+        // Store tokens in localStorage
+        localStorage.setItem('accessToken', accessToken);
+        localStorage.setItem('refreshToken', refreshToken);
 
-      // Update state
-      set({ user, isAuthenticated: true, isLoading: false });
-    } catch (error) {
-      set({ user: null, isAuthenticated: false, isLoading: false });
-      throw error;
+        // Update state
+        set({ user, isAuthenticated: true, isLoading: false });
+        return;
+      } catch (error: any) {
+        lastError = error;
+        const isTimeout = error.code === 'ECONNABORTED' || error.message?.includes('timeout');
+        const isNetwork = error.code === 'ERR_NETWORK' || error.message === 'Network Error';
+        // Only retry on timeout/network errors, not on validation failures (400/409)
+        if ((isTimeout || isNetwork) && attempt < maxAttempts) {
+          await new Promise(r => setTimeout(r, 1500));
+          continue;
+        }
+        break;
+      }
     }
+    set({ user: null, isAuthenticated: false, isLoading: false });
+    throw lastError;
   },
 
   logout: () => {
