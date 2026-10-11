@@ -10,7 +10,6 @@
     "skipLibCheck": true,
     "forceConsistentCasingInFileNames": true,
     "resolveJsonModule": true,
-    "moduleResolution": "node",
     "allowSyntheticDefaultImports": true,
     "noImplicitAny": true,
     "strictNullChecks": true,
@@ -26,12 +25,12 @@
   },
   "include": ["src/**/*.ts"],
   "exclude": [
-  "node_modules",
-  "dist",
-  "src/socket/__tests__",
-  "**/__tests__",
-  "**/*.test.ts",
-  "**/*.spec.ts",
-  "**/test-*.js"
-]
+    "node_modules",
+    "dist",
+    "src/socket/__tests__",
+    "**/__tests__",
+    "**/*.test.ts",
+    "**/*.spec.ts",
+    "**/test-*.js"
+  ]
 }
